@@ -28,7 +28,7 @@ function defaultValidators(Expectation) {
     }, function (a, b) {
         return 'expected ' + a + ' to be greater than ' + b;
     });
-    Expectation.addValidator(TOBE + 'LessThan', isGreaterThan, function (a, b) {
+    Expectation.addValidator(TOBE + 'LessThan', isLessThan, function (a, b) {
         return 'found ' + a + ' to be less than ' + b;
     }, function (a, b) {
         return 'expected ' + a + ' to be less than ' + b;
@@ -47,6 +47,14 @@ function passAForMessage(def) {
             return fn(expectation.a, def);
         };
     };
+}
+
+function isGreaterThan(a, b) {
+    return a > b;
+}
+
+function isLessThan(a, b) {
+    return a < b;
 }
 
 function isEqual(a, b) {
