@@ -48,6 +48,7 @@ module.exports = function () {
         },
         finish: function finish() {
             test.finished = true;
+            checkCounters();
             return {
                 then: function (forlater) {
                     whenfinished.push(forlater);
