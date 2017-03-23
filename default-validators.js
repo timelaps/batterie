@@ -23,6 +23,16 @@ function defaultValidators(Expectation) {
     Expectation.addValidator(TOBE + 'Function', isFunction, functionPasser);
     Expectation.addValidator(TOBE + 'Object', isObject, objectPasser);
     Expectation.addValidator(TOBE + 'Array', isArray, arrayPasser);
+    Expectation.addValidator(TOBE + 'GreaterThan', isGreaterThan, function (a, b) {
+        return 'found ' + a + ' to be greater than ' + b;
+    }, function (a, b) {
+        return 'expected ' + a + ' to be greater than ' + b;
+    });
+    Expectation.addValidator(TOBE + 'LessThan', isGreaterThan, function (a, b) {
+        return 'found ' + a + ' to be less than ' + b;
+    }, function (a, b) {
+        return 'expected ' + a + ' to be less than ' + b;
+    });
 }
 
 function passForMessage(fn) {
