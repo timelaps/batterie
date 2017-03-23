@@ -28,10 +28,10 @@ function defaultValidators(Expectation) {
     }, function (a, b) {
         return 'expected ' + a + ' to be greater than ' + b;
     });
-    Expectation.addValidator(TOBE + 'LessThan', isLessThan, function (a, b) {
-        return 'found ' + a + ' to be less than ' + b;
-    }, function (a, b) {
-        return 'expected ' + a + ' to be less than ' + b;
+    Expectation.addValidator(TOBE + 'LessThan', isLessThan, function (expectation) {
+        return 'found ' + expectation.a + ' to be less than ' + expectation.b;
+    }, function (expectation) {
+        return 'expected ' + expectation.a + ' to be less than ' + expectation.b;
     });
 }
 
