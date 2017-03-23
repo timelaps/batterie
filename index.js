@@ -25,7 +25,7 @@ module.exports = function () {
         every: history,
         everyHandlers: everyHandlers
     };
-    defaultValidators(Expectation.addValidator);
+    defaultValidators(Expectation);
     return (test = {
         failed: pushes(failedHandlers),
         missed: pushes(missedHandlers),

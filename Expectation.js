@@ -3,7 +3,12 @@ module.exports = Expectation;
 Expectation.prototype = {
     finished: expectationFinished
 };
-Expectation.addValidator = function addValidator(name, fn, successmessage, failuremessage) {
+Expectation.defaultSuccessMessage = defaultSuccessMessage;
+Expectation.defaultFailureMessage = defaultFailureMessage;
+Expectation.addValidator = function addValidator(name, fn, successmessage_, failuremessage_) {
+    var successmessage = !failuremessage_ ? successmessage_(defaultSuccessMessage) : successmessage_;
+    var failuremessage = !failuremessage_ ? successmessage_(defaultFailureMessage) : failuremessage_;
+    console.log(fn, successmessage, failuremessage);
     Expectation.prototype[name] = wrapExpector(fn, successmessage, failuremessage);
 };
 
@@ -17,6 +22,14 @@ function Expectation(parent, a) {
     expectation.ran = false;
 }
 
+function defaultSuccessMessage(a, b) {
+    return 'found ' + a + ' to be strictly equal to ' + b;
+}
+
+function defaultFailureMessage(a, b) {
+    return 'expected ' + a + ' to be strictly equal to ' + b;
+}
+
 function expectationFinished(passed, successmessage, failuremessage) {
     var message, handlers, expectation = this,
         globl = expectation.it.global,
@@ -26,6 +39,7 @@ function expectationFinished(passed, successmessage, failuremessage) {
         globl.success.push(expectation);
         handlers = globl.successHandlers;
     } else {
+        console.log(arguments);
         message = failuremessage(expectation);
         globl.failed.push(expectation);
         handlers = globl.failedHandlers;
