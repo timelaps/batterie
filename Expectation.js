@@ -8,7 +8,6 @@ Expectation.defaultFailureMessage = defaultFailureMessage;
 Expectation.addValidator = function addValidator(name, fn, successmessage_, failuremessage_) {
     var successmessage = !failuremessage_ ? successmessage_(defaultSuccessMessage) : successmessage_;
     var failuremessage = !failuremessage_ ? successmessage_(defaultFailureMessage) : failuremessage_;
-    console.log(fn, successmessage, failuremessage);
     Expectation.prototype[name] = wrapExpector(fn, successmessage, failuremessage);
 };
 
@@ -39,7 +38,6 @@ function expectationFinished(passed, successmessage, failuremessage) {
         globl.success.push(expectation);
         handlers = globl.successHandlers;
     } else {
-        console.log(arguments);
         message = failuremessage(expectation);
         globl.failed.push(expectation);
         handlers = globl.failedHandlers;
