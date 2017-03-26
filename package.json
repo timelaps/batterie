@@ -1,13 +1,13 @@
 {
-    "name": "batterie",
-    "version": "1.0.7",
-    "description": "",
-    "main": "index.js",
-    "repository": "https://github.com/mmclau14/batterie",
-    "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
-    },
-    "keywords": [],
-    "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
-    "license": "MIT"
+  "name": "batterie",
+  "version": "1.0.8",
+  "description": "",
+  "main": "index.js",
+  "repository": "https://github.com/mmclau14/batterie",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
+  "license": "MIT"
 }
