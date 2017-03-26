@@ -5,7 +5,7 @@ module.exports = construct;
 function construct() {
     var ExpectationFn = Expectation.prototype = {
         finished: finished,
-        not: {},
+        // not: {},
         pretty: function () {
             var expectation = this;
             return expectation.name + '\n\t#' + (expectation.groupindex + 1) + ' ' + expectation.message;
@@ -35,7 +35,7 @@ function construct() {
             passedNotMessage = !passedNotMessage_ ? passedMessage_(defaultPassedNotMessage) : passedNotMessage_;
         }
         ExpectationFn[name] = wrapExpector(fn, passedMessage);
-        ExpectationFn.not[name] = wrapExpector(negate(fn), passedMessage);
+        ExpectationFn['not' + capitalize(name)] = wrapExpector(negate(fn), passedMessage);
     };
     return Expectation;
 
@@ -49,6 +49,10 @@ function construct() {
         expectation.ran = false;
         return expectation;
     }
+}
+
+function capitalize(str) {
+    return str[0].toUpperCase() + str.slice(1);
 }
 
 function negate(fn) {
