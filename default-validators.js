@@ -1,5 +1,6 @@
 module.exports = defaultValidators;
 var isArray = Array.isArray;
+var wraptry = require('./utils/wrap-try');
 var TOBE = 'toBe';
 
 function defaultValidators(Expectation) {
@@ -13,6 +14,7 @@ function defaultValidators(Expectation) {
         objectPasser = passAForMessage('of type object'),
         arrayPasser = passAForMessage('an Array');
     Expectation.addValidator('toEqual', isEqual, passForMessage);
+    Expectation.addValidator('toThrow', throws, passAForMessage('to throw'));
     Expectation.addValidator(TOBE, isStrictlyEqual, passForMessage);
     Expectation.addValidator(TOBE + 'True', isTrue, trueBoolean);
     Expectation.addValidator(TOBE + 'False', isFalse, falseBoolean);
@@ -23,16 +25,52 @@ function defaultValidators(Expectation) {
     Expectation.addValidator(TOBE + 'Function', isFunction, functionPasser);
     Expectation.addValidator(TOBE + 'Object', isObject, objectPasser);
     Expectation.addValidator(TOBE + 'Array', isArray, arrayPasser);
-    Expectation.addValidator(TOBE + 'GreaterThan', isGreaterThan, function (a, b) {
-        return 'found ' + a + ' to be greater than ' + b;
-    }, function (a, b) {
-        return 'expected ' + a + ' to be greater than ' + b;
+    Expectation.addValidator(TOBE + 'Type', isType, combineABPrefix('of type'));
+    Expectation.addValidator(TOBE + 'Nan', isNan, passAForMessage('NaN'));
+    Expectation.addValidator(TOBE + 'GreaterThan', isGreaterThan, combineABPrefix('greater than'));
+    Expectation.addValidator(TOBE + 'LessThan', isLessThan, combineABPrefix('less than'));
+    Expectation.addValidator(TOBE + 'Decimal', isDecimal, passAForMessage('a decimal'));
+    Expectation.addValidator(TOBE + 'Integer', isInteger, passAForMessage('an integer'));
+    Expectation.addValidator(TOBE + 'GreaterThanEqualTo', isGreaterThanEqualTo, combineABPrefix('greater than or equal to'));
+    Expectation.addValidator(TOBE + 'LessThanEqualTo', isLessThanEqualTo, combineABPrefix('less than or equal to'));
+    Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
+        return function (expectation) {
+            return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
+        };
     });
-    Expectation.addValidator(TOBE + 'LessThan', isLessThan, function (expectation) {
-        return 'found ' + expectation.a + ' to be less than ' + expectation.b;
-    }, function (expectation) {
-        return 'expected ' + expectation.a + ' to be less than ' + expectation.b;
+}
+
+function isDecimal(a) {
+    return isNumber(a) && parseInt(a, 10) !== a;
+}
+
+function isInteger(a) {
+    return isNumber(a) && parseInt(a, 10) === a;
+}
+
+function throws(fn) {
+    return wraptry(function () {
+        fn();
+        return false;
+    }, function () {
+        return true;
     });
+}
+
+function isNan(a) {
+    return a !== a;
+}
+
+function isInstanceOf(a, b) {
+    return a instanceof b;
+}
+
+function combineABPrefix(prefix) {
+    return function (fn) {
+        return function (expectation) {
+            return fn(expectation.a, prefix + ' ' + expectation.b);
+        };
+    };
 }
 
 function passForMessage(fn) {
@@ -55,6 +93,14 @@ function isGreaterThan(a, b) {
 
 function isLessThan(a, b) {
     return a < b;
+}
+
+function isGreaterThanEqualTo(a, b) {
+    return a >= b;
+}
+
+function isLessThanEqualTo(a, b) {
+    return a <= b;
 }
 
 function isEqual(a, b) {
@@ -89,20 +135,24 @@ function isNil(a) {
     return isUndefined(a) || isNull(a);
 }
 
-function typeIs(a, string) {
-    return isStrictlyEqual(typeof a, string);
+function typeOf(object) {
+    return typeof object;
+}
+
+function isType(a, string) {
+    return isStrictlyEqual(typeOf(a), string);
 }
 
 function isFunction(a) {
-    return a && typeIs(a, 'function');
+    return isType(a, 'function');
 }
 
 function isObject(a) {
-    return a && typeIs(a, 'object');
+    return a && isType(a, 'object');
 }
 
 function isNumber(a) {
-    return typeIs(a, 'number');
+    return isType(a, 'number');
 }
 
 function toNumber(a) {

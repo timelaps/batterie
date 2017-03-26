@@ -1,131 +1,233 @@
-var forEach = require('./for-each');
+var forEach = require('./utils/for-each');
 var defaultValidators = require('./default-validators');
-var Expectation = require('./Expectation');
-module.exports = function () {
-    var history = [];
-    var success = [];
-    var failed = [];
-    var missed = [];
-    var failedHandlers = [];
-    var missedHandlers = [];
-    var successHandlers = [];
-    var everyHandlers = [];
-    var stalecounter;
-    var testNames = [];
-    var its = [];
-    var whenfinished = [];
-    var isArray = Array.isArray;
-    var globl = {
-        success: success,
-        successHandlers: successHandlers,
-        failed: failed,
-        failedHandlers: failedHandlers,
-        missed: missed,
-        missedHandlers: missedHandlers,
-        every: history,
-        everyHandlers: everyHandlers
-    };
-    defaultValidators(Expectation);
-    return (test = {
-        failed: pushes(failedHandlers),
-        missed: pushes(missedHandlers),
-        every: pushes(everyHandlers),
-        success: pushes(successHandlers),
-        it: function it(testName, fn, counter) {
-            var itInstance;
-            testNames.push(testName);
-            itInstance = {
-                expectations: [],
-                name: testNames.slice(0),
-                counter: counter || 1,
-                missed: false,
-                global: globl
-            };
-            checkCounters();
-            its.push(itInstance);
-            wraptry(fn, logError);
-            testNames.pop();
-        },
-        finish: function finish() {
-            test.finished = true;
-            checkCounters();
-            return {
-                then: function (forlater) {
-                    whenfinished.push(forlater);
-                    emptyFinishers();
-                    return this;
-                }
-            };
-        },
-        describe: function describe(prefix, fn) {
-            testNames.push(prefix);
-            wraptry(fn, logError);
-            testNames.pop();
-        },
-        expect: function expect(value) {
-            var parentIt = currentIt();
-            var crntExpectations = parentIt.expectations;
-            var expt = new Expectation(parentIt, value);
-            history.push(expt);
-            crntExpectations.push(expt);
-            return expt;
-        },
-        battery: function battery(prefix, array, fn, count) {
-            var test = this;
-            if (isArray(prefix)) {
-                forEach(prefix, function (item) {
-                    battery(item[0], item[1], item[2], item[3]);
-                });
+var ExpectationConstructorCreator = require('./Expectation');
+var It = require('./It');
+var callItem = require('./utils/call-item');
+var logError = require('./utils/log-error');
+var wraptry = require('./utils/wrap-try');
+var isArray = Array.isArray;
+var counter = 0;
+Batterie.prototype = {
+    construct: construct,
+    forEach: forEach,
+    addValidator: function () {
+        var E = this.Expectation;
+        return E.addValidator.apply(E, arguments);
+    },
+    serial: function (name, runner, expects) {
+        return this.it(name, runner, {
+            expects: expects,
+            async: true,
+            serial: true
+        });
+    },
+    async: function (name, runner, expects) {
+        return this.it(name, runner, {
+            expects: expects,
+            async: true
+        });
+    },
+    sync: function (name, runner, expects) {
+        return this.it(name, runner, {
+            expects: expects,
+            async: false
+        });
+    },
+    it: function it(testName, runner, options) {
+        var key;
+        var batterie = this;
+        var tasks = batterie.tasks;
+        var nameStack = batterie.testNames.concat([testName]);
+        var it = new It(batterie, nameStack, runner, typeof options === 'number' ? {
+            expects: options
+        } : options);
+        var its = batterie.its;
+        its.every.push(it);
+        if (it.async) {
+            key = it.serial ? 'serial' : 'parallel';
+            its.async[key].push(it);
+            tasks.async[key].push(runns);
+        } else {
+            its.sync.push(it);
+            tasks.sync.push(runns);
+        }
+        batterie.flush();
+
+        function runns(next) {
+            if (it.async) {
+                setTimeout(actualRunner);
             } else {
-                test.describe(prefix, function () {
-                    forEach(array, function (item) {
-                        testThisRound(test, item, fn, count);
-                    });
+                actualRunner();
+            }
+
+            function actualRunner() {
+                it.run(function () {
+                    if (it.expectations.anyFailed) {
+                        its.failed.push(it);
+                    } else {
+                        its.passed.push(it);
+                    }
+                    next();
                 });
             }
         }
-    });
-
-    function emptyFinishers() {
-        var finishers;
-        if (test.finished) {
-            finishers = whenfinished.slice(0);
-            whenfinished = [];
-            forEach(finishers, function (finisher) {
-                finisher({
-                    total: history.length,
-                    history: history,
-                    success: success,
-                    missed: missed,
-                    failed: failed
+    },
+    flush: function flush() {
+        var synctasks, task, parallel, counter, batterie = this,
+            its = batterie.its,
+            tasks = batterie.tasks,
+            async = tasks.async,
+            sync = tasks.sync;
+        if (sync.length) {
+            tasks.sync = [];
+            forEach(sync, callItem(function () {}));
+        }
+        if (!batterie.finished) {
+            return;
+        }
+        if (batterie.busy) {
+            return;
+        } else {
+            if ((parallel = async.parallel).length) {
+                async.counter = 1;
+                async.parallel = [];
+                forEach(parallel, function (task) {
+                    async.counter++;
+                    task(function () {
+                        async.counter--;
+                        check();
+                    });
                 });
+                async.counter--;
+                check();
+                return;
+            } else if (!async.counter) {
+                task = async.serial.shift() || tasks.after.shift();
+                if (!task) {
+                    batterie.busy = false;
+                    return;
+                }
+                task(function () {
+                    batterie.busy = false;
+                    batterie.flush();
+                });
+            }
+
+            function check() {
+                if (async.counter) {
+                    return;
+                }
+                batterie.busy = false;
+                batterie.flush();
+            }
+        }
+    },
+    finish: function finish() {
+        var batterie = this;
+        batterie.finished = true;
+        batterie.flush();
+        return {
+            then: function (forlater) {
+                batterie.handlers.finish.push(forlater);
+                batterie.tasks.after.push(function () {
+                    emptyFinishers(batterie);
+                });
+                batterie.flush();
+                return batterie;
+            }
+        };
+    },
+    describe: function describe(prefix, fn) {
+        this.testNames.push(prefix);
+        wraptry(fn, logError);
+        this.testNames.pop();
+    },
+    flutter: function flutter(prefix, array, fn, count) {
+        var bat = this;
+        if (isArray(prefix)) {
+            // if the first is an array, then go through again
+            forEach(prefix, function (item) {
+                bat.flutter(item[0], item[1], item[2], item[3]);
+            });
+        } else {
+            bat.describe(prefix, function () {
+                forEach(array, testThisRound(bat, fn, count));
             });
         }
+    },
+    loggers: {
+        basic: require('./logs/basic')
+    },
+    logger: function (key) {
+        return this.loggers[key] || this.loggers.basic;
     }
+};
+module.exports = construct();
 
-    function logError(e) {
-        console.error ? console.error(e) : console.log(e);
+function construct() {
+    return new Batterie();
+}
+
+function Batterie() {
+    var batterie = this;
+    batterie.global = !(counter++);
+    batterie.handlers = {
+        passed: [],
+        failed: [],
+        missed: [],
+        every: [],
+        finish: []
+    };
+    batterie.testNames = [];
+    batterie.its = {
+        every: [],
+        passed: [],
+        failed: [],
+        missed: [],
+        sync: [],
+        async: {
+            parallel: [],
+            serial: []
+        }
+    };
+    batterie.tasks = {
+        sync: [],
+        after: [],
+        async: {
+            parallel: [],
+            serial: []
+        }
+    };
+    batterie.expectations = {
+        passed: [],
+        failed: [],
+        missed: [],
+        every: [],
+        async: [],
+        sync: []
+    };
+    batterie.failed = pushes(batterie.handlers.failed);
+    batterie.missed = pushes(batterie.handlers.missed);
+    batterie.every = pushes(batterie.handlers.every);
+    batterie.passed = pushes(batterie.handlers.passed);
+    batterie.Expectation = ExpectationConstructorCreator();
+    defaultValidators(batterie.Expectation);
+    batterie.busy = false;
+    return batterie;
+};
+
+function emptyFinishers(bat) {
+    var finishers;
+    if (bat.finished) {
+        finishers = bat.handlers.finish.slice(0);
+        bat.handlers.finish = [];
+        forEach(finishers, callItem(bat));
     }
+}
 
-    function pushes(array) {
-        return function (fn) {
-            array.push(fn);
-        };
-    }
-
-    function currentIt() {
-        return its[its.length - 1];
-    }
-
-    function currentExpectations() {
-        return currentIt().expectations;
-    }
-
-    function expectationLength() {
-        return currentExpectations().length;
-    }
-
-    function testThisRound(test, array, fn, count) {
+function testThisRound(batterie, fn, count) {
+    return function (array) {
+        var message = array[0];
         var sliced = array.slice(1);
         var countIsFn = typeof count === 'function';
         if (sliced.length > 1) {
@@ -135,49 +237,23 @@ module.exports = function () {
         }
 
         function runSlice(sliced) {
-            test.it(array[0], function () {
-                if (fn) {
-                    fn.apply(test, sliced);
-                } else {
-                    test.expect(sliced[0]).toBe(sliced[1]);
-                }
-            }, countIsFn ? count.apply(this, sliced) : count);
-        }
-    }
-
-    function wraptry(fn, tries, finalies) {
-        var res;
-        try {
-            res = fn();
-        } catch (e) {
-            res = tries ? tries(e) : e;
-        } finally {
-            res = finalies ? finalies(res) : res;
-        }
-        return res;
-    }
-
-    function checkCounters() {
-        var name, msd, expectations, current = currentIt();
-        if (current && current.counter) {
-            expectations = current.expectations;
-            if (current.counter !== expectations.length) {
-                name = current.name.slice(0).join(' ');
-                msd = {
-                    name: name,
-                    message: 'MISSING: expected ' + name + ' to have ' + current.counter + ' instead of ' + expectations.length,
-                    group: current
-                };
-                current.missed = true;
-                missed.push(msd);
-                forEach(missedHandlers, callHandler(msd));
+            var args, c = countIsFn ? count.apply(this, sliced) : count;
+            if (fn) {
+                batterie.it(message, function (t) {
+                    var args = Array.apply(null, arguments);
+                    fn.apply(t, [t].concat(sliced, args));
+                }, c);
+            } else {
+                batterie.it(message, function (t) {
+                    t.expect(sliced[0]).toEqual(sliced[1]);
+                }, c);
             }
         }
-    }
+    };
+}
 
-    function callHandler(expectation) {
-        return function (handler) {
-            handler(expectation);
-        };
-    }
-};
+function pushes(array) {
+    return function (fn) {
+        array.push(fn);
+    };
+}
