@@ -3,8 +3,10 @@ var callItem = require('./utils/call-item');
 module.exports = construct;
 
 function construct() {
-    Expectation.prototype = {
+    var ExpectationFn = Expectation.prototype;
+    ExpectationFn = {
         finished: finished,
+        not: {},
         pretty: function () {
             var expectation = this;
             return expectation.name + '\n\t#' + (expectation.groupindex + 1) + ' ' + expectation.message;
@@ -22,18 +24,19 @@ function construct() {
             return true;
         })
     };
-    Expectation.defaultSuccessMessage = defaultSuccessMessage;
-    Expectation.defaultFailureMessage = defaultFailureMessage;
+    Expectation.defaultPassedMessage = defaultPassedMessage;
+    Expectation.defaultPassedNotMessage = defaultPassedNotMessage;
     Expectation.addValidator = function addValidator(name, fn, passedmessage_, failuremessage_) {
-        var passedmessage, failuremessage;
-        if (!passedmessage_) {
-            passedmessage = defaultWrapper(defaultSuccessMessage);
-            failuremessage = defaultWrapper(defaultFailureMessage);
+        var passedMessage, passedNotMessage;
+        if (!passedMessage_) {
+            passedMessage = defaultWrapper(defaultPassedMessage);
+            passedNotMessage = defaultWrapper(defaultPassedNotMessage);
         } else {
-            passedmessage = !failuremessage_ ? passedmessage_(defaultSuccessMessage) : passedmessage_;
-            failuremessage = !failuremessage_ ? passedmessage_(defaultFailureMessage) : failuremessage_;
+            passedMessage = !passedNotMessage_ ? passedMessage_(defaultPassedMessage) : passedMessage_;
+            passedNotMessage = !passedNotMessage_ ? passedMessage_(defaultPassedNotMessage) : passedNotMessage_;
         }
-        Expectation.prototype[name] = wrapExpector(fn, passedmessage, failuremessage);
+        ExpectationFn[name] = wrapExpector(fn, passedMessage);
+        ExpectationFn.not[name] = wrapExpector(negate(fn), passedMessage);
     };
     return Expectation;
 
@@ -55,27 +58,28 @@ function defaultWrapper(fn) {
     };
 }
 
-function defaultSuccessMessage(a, b) {
-    return 'found ' + a + ' to be strictly equal to ' + b;
+function defaultPassedMessage(a, b) {
+    return a + ' to be strictly equal to ' + b;
 }
 
-function defaultFailureMessage(a, b) {
-    return 'expected ' + a + ' to be strictly equal to ' + b;
+function defaultPassedNotMessage(a, b) {
+    return a + ' to be strictly equal to ' + b;
 }
 
-function finished(passed_, passedmessage, failuremessage) {
-    var message, handlers, passed = !!passed_,
+function finished(passed_, passedMessage) {
+    var handlers, passed = !!passed_,
         expectation = this,
         it = expectation.it,
         globl = it.global,
         calls = callItem(expectation),
-        expectations = it.expectations;
+        expectations = it.expectations,
+        message = passedMessage(expectation);
     if (passed) {
-        message = passedmessage(expectation);
+        message = 'found ' + message;
         expectations.passed.push(expectation);
         handlers = globl.handlers.passed;
     } else {
-        message = failuremessage(expectation);
+        message = 'expected ' + message;
         expectations.failed.push(expectation);
         handlers = globl.handlers.failed;
     }
@@ -105,7 +109,7 @@ function isString(string) {
     return typeof string === 'string';
 }
 
-function wrapExpector(fn, passedmessage, failuremessage) {
+function wrapExpector(fn, failuremessage) {
     return function (b) {
         var expectation = this;
         if (expectation.ran) {
