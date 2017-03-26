@@ -156,7 +156,7 @@ Batterie.prototype = {
         }
     },
     loggers: {
-        basic: require('./logs/basic')
+        basic: require('./loggers/basic')
     },
     logger: function (key) {
         return this.loggers[key] || this.loggers.basic;
