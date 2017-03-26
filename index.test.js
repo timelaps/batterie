@@ -81,7 +81,6 @@ b.describe('Batterie', function () {
         b.addValidator('toBeClass', function (expectation) {
             return expectation instanceof Class;
         });
-        console.log(b.Expectation.prototype);
         var newHas = expects.toBeClass;
         expects.toBeClass();
         t.expect(has).toBeUndefined();

@@ -3,8 +3,7 @@ var callItem = require('./utils/call-item');
 module.exports = construct;
 
 function construct() {
-    var ExpectationFn = Expectation.prototype;
-    ExpectationFn = {
+    var ExpectationFn = Expectation.prototype = {
         finished: finished,
         not: {},
         pretty: function () {
@@ -26,7 +25,7 @@ function construct() {
     };
     Expectation.defaultPassedMessage = defaultPassedMessage;
     Expectation.defaultPassedNotMessage = defaultPassedNotMessage;
-    Expectation.addValidator = function addValidator(name, fn, passedmessage_, failuremessage_) {
+    Expectation.addValidator = function addValidator(name, fn, passedMessage_, passedNotMessage_) {
         var passedMessage, passedNotMessage;
         if (!passedMessage_) {
             passedMessage = defaultWrapper(defaultPassedMessage);
@@ -50,6 +49,12 @@ function construct() {
         expectation.ran = false;
         return expectation;
     }
+}
+
+function negate(fn) {
+    return function () {
+        return !fn.apply(this, arguments);
+    };
 }
 
 function defaultWrapper(fn) {
@@ -109,7 +114,7 @@ function isString(string) {
     return typeof string === 'string';
 }
 
-function wrapExpector(fn, failuremessage) {
+function wrapExpector(fn, passedMessage) {
     return function (b) {
         var expectation = this;
         if (expectation.ran) {
@@ -117,6 +122,6 @@ function wrapExpector(fn, failuremessage) {
         }
         expectation.ran = true;
         expectation.b = b;
-        return expectation.finished(fn(expectation.a, b), passedmessage, failuremessage);
+        return expectation.finished(fn(expectation.a, b), passedMessage);
     };
 }

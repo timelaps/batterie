@@ -2,10 +2,10 @@ var forEach = require('./utils/for-each');
 var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
 var callItem = require('./utils/call-item');
-var parseStack = require('./parse-stack');
+// var parseStack = require('./parse-stack');
 It.prototype = {
     expect: function (value) {
-        var err = parseStack(1); // for the stack
+        // var err = parseStack(1); // for the stack
         var it = this;
         var batterie = it.global;
         var expectations = it.expectations;
