@@ -15,9 +15,6 @@ b.describe('Batterie', function () {
     b.it('has a expect function', function (t) {
         t.expect(t.expect).toBeFunction();
     });
-    b.it('has a battery function', function (t) {
-        t.expect(b.flutter).toBeFunction();
-    });
     b.it('has a hash of log functions', function (t) {
         t.expect(b.logger()).toBeFunction();
     });
@@ -88,6 +85,10 @@ b.describe('Batterie', function () {
 
         function Class() {}
     }, 3);
+    b.it('can curry tests', [
+        ['with any method available', b.curry(true, 'toBeTrue')],
+        ['even the ones that were just added', b.curry(null, 'notToBeClass')]
+    ]);
 });
 // create reporter plugins
 b.finish().then(b.logger());

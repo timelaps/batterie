@@ -17,7 +17,7 @@ b.describe('This Framework', function () {
             expect(tp.fn2()).toBe(2);
         });
         b.it('but not this other thing', function () {
-            expect(tp.fn3()).toBe(null);
+            expect(tp.fn3()).toBeFunction();
         });
     });
 });
@@ -28,7 +28,7 @@ b.describe('This Framework', function () {
     b.it('Some Test Point', [
         ['should do this thing', tp.fn1(), 1],
         ['and this other thing', tp.fn2(), 2],
-        ['but not this other thing', tp.fn3(), null]
+        ['but not this other thing', b.curry(tp.fn3(), 'toBeFunction')]
     ]);
 });
 ```

@@ -33,6 +33,12 @@ Batterie.prototype = {
             async: false
         });
     },
+    curry: function (a, method, b) {
+        var batterie = this;
+        return function (t) {
+            t.expect(a)[method](b);
+        };
+    },
     it: function it(testName, runner, options) {
         var key;
         var batterie = this;
@@ -233,11 +239,12 @@ function testThisRound(batterie, fn, count) {
     return function (array) {
         var message = array[0];
         var sliced = array.slice(1);
-        var countIsFn = typeof count === 'function';
+        var countIsFn = isFunction(count);
+        var first = sliced[0];
         if (sliced.length > 1) {
             runSlice(sliced);
         } else {
-            forEach(sliced[0], runSlice);
+            forEach(isArray(first) ? first : [first], runSlice);
         }
 
         function runSlice(sliced) {
@@ -248,12 +255,20 @@ function testThisRound(batterie, fn, count) {
                     fn.apply(t, [t].concat(sliced, args));
                 }, c);
             } else {
-                batterie.it(message, function (t) {
-                    t.expect(sliced[0]).toEqual(sliced[1]);
-                }, c);
+                if (isFunction(sliced)) {
+                    batterie.it(message, sliced, c);
+                } else {
+                    batterie.it(message, function (t) {
+                        t.expect(sliced[0]).toEqual(sliced[1]);
+                    }, c);
+                }
             }
         }
     };
+}
+
+function isFunction(fn) {
+    return typeof fn === 'function';
 }
 
 function pushes(array) {

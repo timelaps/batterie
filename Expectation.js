@@ -5,7 +5,6 @@ module.exports = construct;
 function construct() {
     var ExpectationFn = Expectation.prototype = {
         finished: finished,
-        // not: {},
         pretty: function () {
             var expectation = this;
             return expectation.name + '\n\t#' + (expectation.groupindex + 1) + ' ' + expectation.message;
@@ -41,8 +40,10 @@ function construct() {
 
     function Expectation(it, a) {
         var expectation = this;
+        // it stuff should be moved to other side
+        // or at least into a bind type function
         expectation.it = it;
-        expectation.groupindex = it.expectations.length;
+        expectation.groupindex = it.expectations.every.length;
         expectation.name = it.name.join(' ');
         expectation.a = a;
         expectation.passed = false;
@@ -76,7 +77,7 @@ function defaultPassedNotMessage(a, b) {
 }
 
 function finished(passed_, passedMessage) {
-    var handlers, passed = !!passed_,
+    var handlers, key, passed = !!passed_,
         expectation = this,
         it = expectation.it,
         globl = it.global,
@@ -84,14 +85,15 @@ function finished(passed_, passedMessage) {
         expectations = it.expectations,
         message = passedMessage(expectation);
     if (passed) {
+        key = 'passed';
         message = 'found ' + message;
-        expectations.passed.push(expectation);
-        handlers = globl.handlers.passed;
     } else {
+        key = 'failed';
         message = 'expected ' + message;
-        expectations.failed.push(expectation);
-        handlers = globl.handlers.failed;
     }
+    handlers = globl.handlers[key];
+    expectations[key].push(expectation);
+    globl.expectations[key].push(expectation);
     expectation.failed = !passed;
     expectations.anyFailed = expectations.anyFailed || !passed;
     expectation.passed = passed;

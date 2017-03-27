@@ -3,10 +3,10 @@ module.exports = function basicLog(batterie) {
     var expectations = batterie.expectations;
     var its = batterie.its;
     forEach(expectations.missed, function (missed) {
-        console.log(missed.message);
+        console.log(missed.pretty());
     });
     forEach(expectations.failed, function (failed) {
-        console.log(failed.pretty);
+        console.log(failed.pretty());
     });
     console.log('TOTAL:\t', its.every.length);
     console.log('PASSED:\t', its.passed.length);

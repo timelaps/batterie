@@ -99,11 +99,11 @@ function checkCounters(batterie, it) {
     if (it && it.expects) {
         expectations = it.expectations.every;
         if (it.expects !== expectations.length) {
-            name = it.name.slice(0).join(' ');
             msd = {
-                name: name,
-                message: 'MISSING: expected ' + name + ' to have ' + it.expects + ' expectations instead of ' + expectations.length,
-                group: it
+                it: it,
+                pretty: function () {
+                    return 'MISSING: expected ' + this.it.name.join(' ') + ' to have ' + this.it.expects + ' expectations instead of ' + this.it.expectations.every.length;
+                }
             };
             it.missed = true;
             batterie.its.missed.push(it);
