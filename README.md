@@ -2,7 +2,7 @@
 
 • batterie - _the action of beating or crossing the feet or calves together during a leap or jump._
 
-A lightweight synchronous testing library for testing your code succinctly and quickly.
+A lightweight testing library for testing your code succinctly and quickly.
 
 Instead of repeating a bunch of code over and over again...
 
