@@ -19,12 +19,6 @@ b.describe('This Framework', function () {
         b.it('but not this other thing', function () {
             expect(tp.fn3()).toBe(null);
         });
-        b.it('and this other thing', function () {
-            expect(tp.fn2()).toBe(2);
-        });
-        b.it('but not this other thing', function () {
-            expect(tp.fn3()).toBe(null);
-        });
     });
 });
 ```
