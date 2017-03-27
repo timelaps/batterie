@@ -11,14 +11,14 @@ var ac = new AClass();
 b.describe('This Framework', function () {
     // repeating code
     b.describe('Some Test Point', function () {
-        b.it('should do this thing', function () {
-            b.expect(ac.fn1()).toBe(1);
+        b.it('should do this thing', function (t) {
+            t.expect(ac.fn1()).toBe(1);
         });
-        b.it('and this other thing', function () {
-            expect(ac.fn2()).toBe(2);
+        b.it('and this other thing', function (t) {
+            t.expect(ac.fn2()).toBe(2);
         });
-        b.it('and also this other thing', function () {
-            expect(ac.fn3()).toBeFunction();
+        b.it('and also this other thing', function (t) {
+            t.expect(ac.fn3()).toBeFunction();
         });
     });
 });
