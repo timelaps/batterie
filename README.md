@@ -7,25 +7,36 @@ Instead of repeating a bunch of code over and over again...
 
 ```javascript
 var tp = new TP();
-describe('Some Test Point', function () {
-    it('should do this thing', function () {
-        expect(tp.fn1()).toBe(1);
-    });
-    it('and this other thing', function () {
-        expect(tp.fn2()).toBe(2);
-    });
-    it('but not this other thing', function () {
-        expect(tp.fn3()).toBe(null);
+b.describe('This Framework', function () {
+    // repeating code
+    b.describe('Some Test Point', function () {
+        b.it('should do this thing', function () {
+            b.expect(tp.fn1()).toBe(1);
+        });
+        b.it('and this other thing', function () {
+            expect(tp.fn2()).toBe(2);
+        });
+        b.it('but not this other thing', function () {
+            expect(tp.fn3()).toBe(null);
+        });
+        b.it('and this other thing', function () {
+            expect(tp.fn2()).toBe(2);
+        });
+        b.it('but not this other thing', function () {
+            expect(tp.fn3()).toBe(null);
+        });
     });
 });
 ```
-Just run batterie's battery method
+Just run batterie's it method with an array instead of a function
 ```javascript
-bat.battery('Some Test Point', [
-    ['should do this thing', tp.fn1(), 1],
-    ['and this other thing', tp.fn2(), 2],
-    ['but not this other thing', tp.fn3(), null]
-]);
+b.describe('This Framework', function () {
+    b.it('Some Test Point', [
+        ['should do this thing', tp.fn1(), 1],
+        ['and this other thing', tp.fn2(), 2],
+        ['but not this other thing', tp.fn3(), null]
+    ]);
+});
 ```
 
 all of the previously outlined functions are still there (on the bat object),

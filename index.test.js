@@ -43,12 +43,12 @@ b.describe('Batterie', function () {
             throw {};
         }).toThrow();
     });
-    b.flutter('also does batteries', [
+    b.it('also does batteries', [
         ['these are a series of synchronously executed tests', true, true],
         ['which are executed with the toEqual method', false, false],
         ['as proven by this it call', {}, {}]
     ]);
-    b.flutter('also handles multiple tests at once and runs them sync', [
+    b.it('also handles multiple tests at once and runs them sync', [
         ['when there is no third item in this array', [
             [1, 2],
             [4, 5],

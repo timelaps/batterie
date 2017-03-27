@@ -36,6 +36,9 @@ Batterie.prototype = {
     it: function it(testName, runner, options) {
         var key;
         var batterie = this;
+        if (isArray(testName) || isArray(runner)) {
+            return flutter(batterie, testName, runner, options);
+        }
         var tasks = batterie.tasks;
         var nameStack = batterie.testNames.concat([testName]);
         var it = new It(batterie, nameStack, runner, typeof options === 'number' ? {
@@ -142,19 +145,7 @@ Batterie.prototype = {
         wraptry(fn, logError);
         this.testNames.pop();
     },
-    flutter: function flutter(prefix, array, fn, count) {
-        var bat = this;
-        if (isArray(prefix)) {
-            // if the first is an array, then go through again
-            forEach(prefix, function (item) {
-                bat.flutter(item[0], item[1], item[2], item[3]);
-            });
-        } else {
-            bat.describe(prefix, function () {
-                forEach(array, testThisRound(bat, fn, count));
-            });
-        }
-    },
+    // flutter: ,
     loggers: {
         basic: require('./loggers/basic')
     },
@@ -166,6 +157,19 @@ module.exports = construct();
 
 function construct() {
     return new Batterie();
+}
+
+function flutter(batterie, prefix, array, fn, count) {
+    if (isArray(prefix)) {
+        // if the first is an array, then go through again
+        forEach(prefix, function (item) {
+            batterie.flutter(item[0], item[1], item[2], item[3]);
+        });
+    } else {
+        batterie.describe(prefix, function () {
+            forEach(array, testThisRound(batterie, fn, count));
+        });
+    }
 }
 
 function Batterie() {
