@@ -1,41 +1,41 @@
-# Batterie
--- the action of beating or crossing the feet or calves together during a leap or jump.
+# Batterie.js
+
+• batterie - _the action of beating or crossing the feet or calves together during a leap or jump._
 
 A lightweight synchronous testing library for testing your code succinctly and quickly.
 
 Instead of repeating a bunch of code over and over again...
 
 ```javascript
-var tp = new TP();
+var ac = new AClass();
 b.describe('This Framework', function () {
     // repeating code
     b.describe('Some Test Point', function () {
         b.it('should do this thing', function () {
-            b.expect(tp.fn1()).toBe(1);
+            b.expect(ac.fn1()).toBe(1);
         });
         b.it('and this other thing', function () {
-            expect(tp.fn2()).toBe(2);
+            expect(ac.fn2()).toBe(2);
         });
-        b.it('but not this other thing', function () {
-            expect(tp.fn3()).toBeFunction();
+        b.it('and also this other thing', function () {
+            expect(ac.fn3()).toBeFunction();
         });
     });
 });
 ```
 Just run batterie's it method with an array instead of a function
 ```javascript
+var ac = new AClass();
 b.describe('This Framework', function () {
     b.it('Some Test Point', [
-        ['should do this thing', tp.fn1(), 1],
-        ['and this other thing', tp.fn2(), 2],
-        ['but not this other thing', b.curry(tp.fn3(), 'toBeFunction')]
+        ['should do this thing', ac.fn1(), 1],
+        ['and this other thing', ac.fn2(), 2],
+        ['and also this other thing', b.curry(ac.fn3(), 'toBeFunction')]
     ]);
 });
 ```
 
-all of the previously outlined functions are still there (on the bat object),
-
-you're just doing these checks without all the exta code
+all of the previously outlined functions are still there (on the batterie instance), you're just telling batterie to iterate over the specified array and doing these checks without all the exta code
 
 ### Setup
 
@@ -49,8 +49,8 @@ var Batterie = require('batterie');
 import Batterie from 'batterie';
 ```
 
-and create a new ```Batterie``` instance
+if you do not want to use the global instance you can create a new ```Batterie``` instance.
 
 ```javascript
-var test = Batterie();
+var test = Batterie.construct();
 ```
