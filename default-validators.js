@@ -33,11 +33,16 @@ function defaultValidators(Expectation) {
     Expectation.addValidator(TOBE + 'Integer', isInteger, passAForMessage('an integer'));
     Expectation.addValidator(TOBE + 'GreaterThanEqualTo', isGreaterThanEqualTo, combineABPrefix('greater than or equal to'));
     Expectation.addValidator(TOBE + 'LessThanEqualTo', isLessThanEqualTo, combineABPrefix('less than or equal to'));
+    Expectation.addValidator(TOBE + 'Thennable', isThennable, passAForMessage('a Thennable'));
     Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
         return function (expectation) {
             return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
         };
     });
+}
+
+function isThennable(a) {
+    return a && isFunction(a.then) && isFunction(a.catch);
 }
 
 function isDecimal(a) {

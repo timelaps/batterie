@@ -151,7 +151,6 @@ Batterie.prototype = {
         wraptry(fn, logError);
         this.testNames.pop();
     },
-    // flutter: ,
     loggers: {
         basic: require('./loggers/basic')
     },
