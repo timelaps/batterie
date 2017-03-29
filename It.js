@@ -59,7 +59,7 @@ It.prototype = {
                 errorFailover({
                     message: 'timout was met for ' + it.name.join(' ')
                 });
-            }, 5000);
+            }, it.timeout);
         }
 
         function captureerrors(fn) {
@@ -101,11 +101,12 @@ function It(batterie, nameStack, runner, options_) {
         passed: []
     };
     it.name = nameStack;
-    it.expects = options.expects || 1;
-    it.serial = options.serial || false;
     it.missed = false;
     it.global = batterie;
     it.runner = runner;
+    it.timeout = options.timeout || batterie.FORCE_TIMEOUT;
+    it.expects = options.expects || 1;
+    it.serial = options.serial || false;
     it.async = !!options.async;
     return it;
 }

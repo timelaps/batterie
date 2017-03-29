@@ -10,6 +10,7 @@ var counter = 0;
 Batterie.prototype = {
     construct: construct,
     forEach: forEach,
+    FORCE_TIMEOUT: 5000,
     addValidator: function () {
         var E = this.Expectation;
         return E.addValidator.apply(E, arguments);
