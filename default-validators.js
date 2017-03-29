@@ -34,11 +34,21 @@ function defaultValidators(Expectation) {
     Expectation.addValidator(TOBE + 'GreaterThanEqualTo', isGreaterThanEqualTo, combineABPrefix('greater than or equal to'));
     Expectation.addValidator(TOBE + 'LessThanEqualTo', isLessThanEqualTo, combineABPrefix('less than or equal to'));
     Expectation.addValidator(TOBE + 'Thennable', isThennable, passAForMessage('a Thennable'));
+    Expectation.addValidator(TOBE + 'Truthy', isTruthy, passAForMessage('Truthy'));
+    Expectation.addValidator(TOBE + 'Falsey', isFalsey, passAForMessage('Falsey'));
     Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
         return function (expectation) {
             return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
         };
     });
+}
+
+function isFalsey(a) {
+    return !a;
+}
+
+function isTruthy(a) {
+    return !isFalsey(a);
 }
 
 function isThennable(a) {
