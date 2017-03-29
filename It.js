@@ -2,6 +2,7 @@ var forEach = require('./utils/for-each');
 var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
 var callItem = require('./utils/call-item');
+var toArray = require('./utils/to-array');
 // var parseStack = require('./parse-stack');
 It.prototype = {
     expect: function (value) {
@@ -14,14 +15,29 @@ It.prototype = {
         batterie.expectations.every.push(expt)
         return expt;
     },
+    catch: function (fn) {
+        var t = this;
+        return function () {
+            var context = this;
+            var args = toArray(arguments);
+            return wraptry(function () {
+                return fn.apply(context, args);
+            }, function (e) {
+                t.error(e);
+                throw e;
+            });
+        };
+    },
+    error: noop,
+    success: noop,
+    done: noop,
+    failed: noop,
     run: function run(next) {
         var id, start, it = this,
             waitcount = 1,
             batterie = it.global;
-        it.done = finished;
-        it.success = finished;
-        it.error = errorFailover;
-        it.failed = errorFailover;
+        it.success = it.done = finished;
+        it.failed = it.error = errorFailover;
         wraptry(function () {
             var after;
             if (it.async) {
@@ -112,3 +128,5 @@ function checkCounters(batterie, it) {
         }
     }
 }
+
+function noop() {}
