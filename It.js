@@ -12,7 +12,7 @@ It.prototype = {
         var expectations = it.expectations;
         var expt = new batterie.Expectation(it, value);
         expectations.every.push(expt);
-        batterie.expectations.every.push(expt)
+        batterie.expectations.every.push(expt);
         return expt;
     },
     catch: function (fn) {
@@ -112,7 +112,7 @@ function It(batterie, nameStack, runner, options_) {
 }
 
 function checkCounters(batterie, it) {
-    var name, msd, expectations;
+    var msd, expectations;
     if (it && it.expects) {
         expectations = it.expectations.every;
         if (it.expects !== expectations.length) {
