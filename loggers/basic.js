@@ -1,5 +1,7 @@
 var forEach = require('../utils/for-each');
-module.exports = function basicLog(batterie) {
+module.exports = basicLog;
+
+function basicLog(batterie) {
     var expectations = batterie.expectations;
     var its = batterie.its;
     forEach(expectations.missed, function (missed) {
@@ -8,11 +10,16 @@ module.exports = function basicLog(batterie) {
     forEach(expectations.failed, function (failed) {
         console.log(failed.pretty());
     });
-    console.log('TOTAL:\t', its.every.length);
-    console.log('PASSED:\t', its.passed.length);
-    console.log('FAILED:\t', its.failed.length);
-    console.log('MISSED:\t', its.missed.length);
-    console.log('SYNC:\t', its.sync.length);
-    console.log('ASYNC:\t', its.async.parallel.length);
-    console.log('SERIAL:\t', its.async.serial.length);
-};
+    console.log('TOTAL:\t' + its.every.length + //
+        '\nPASSED:\t' + its.passed.length + //
+        '\nFAILED:\t' + its.failed.length + //
+        '\nMISSED:\t' + its.missed.length + //
+        '\nSYNC:\t' + its.sync.length + //
+        '\nASYNC:\t' + its.async.parallel.length + //
+        '\nSERIAL:\t' + its.async.serial.length + //
+        '\n\nEXPECTATIONS' + //
+        '\nTOTAL:\t' + expectations.every.length + //
+        '\nPASSED:\t' + expectations.passed.length + //
+        '\nFAILED:\t' + expectations.failed.length //
+    );
+}
