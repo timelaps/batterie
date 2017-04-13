@@ -3,8 +3,13 @@ var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
 var callItem = require('./utils/call-item');
 var toArray = require('./utils/to-array');
-// var parseStack = require('./parse-stack');
+module.exports = It;
 It.prototype = {
+    error: noop,
+    success: noop,
+    done: noop,
+    failed: noop,
+    run: run,
     expect: function (value) {
         // var err = parseStack(1); // for the stack
         var it = this;
@@ -27,68 +32,64 @@ It.prototype = {
                 throw e;
             });
         };
-    },
-    error: noop,
-    success: noop,
-    done: noop,
-    failed: noop,
-    run: function run(next) {
-        var id, start, it = this,
-            waitcount = 1,
-            batterie = it.global;
-        it.success = it.done = finished;
-        it.failed = it.error = errorFailover;
-        wraptry(function () {
-            var after;
-            if (it.async) {
-                waitcount++;
-                triggerFinishLater();
-                after = it.runner(it);
-            } else {
-                after = it.runner(it);
-            }
-            if (after && after.then && after.catch) {
-                after.then(finished).catch(finished);
-            } else {
-                finished();
-            }
-        }, logError);
-
-        function triggerFinishLater() {
-            id = setTimeout(function () {
-                errorFailover({
-                    message: 'timout was met for ' + it.name.join(' ')
-                });
-            }, it.timeout);
-        }
-
-        function captureerrors(fn) {
-            wraptry(fn, errorFailover);
-        }
-
-        function errorFailover(e) {
-            waitcount = 1;
-            finished(e);
-            logError(e);
-        }
-
-        function finished(err) {
-            if (--waitcount > 0) {
-                return;
-            }
-            // if more expectations occur put them here
-            if (waitcount < 0) {
-                return;
-            }
-            clearTimeout(id);
-            it.error = err === undefined ? null : err;
-            it.failed = it.error !== null;
-            checkCounters(batterie, it);
-            next();
-        }
     }
 };
-module.exports = It;
+
+function noop() {}
+
+function run(next) {
+    var id, start, it = this,
+        waitcount = 1,
+        batterie = it.global;
+    batterie.write('running', true, it);
+    it.success = it.done = finished;
+    it.failed = it.error = errorFailover;
+    wraptry(function () {
+        var after;
+        if (it.async) {
+            waitcount++;
+            triggerFinishLater();
+            after = it.runner(it);
+        } else {
+            after = it.runner(it);
+        }
+        if (after && after.then && after.catch) {
+            after.then(finished).catch(finished);
+        } else {
+            finished();
+        }
+    }, logError);
+
+    function triggerFinishLater() {
+        id = setTimeout(function () {
+            errorFailover({
+                message: 'timout was met for ' + it.name.join(' ')
+            });
+        }, it.timeout);
+    }
+
+    function errorFailover(e) {
+        waitcount = 1;
+        finished(e);
+        logError(e);
+    }
+
+    function finished(err) {
+        if (--waitcount > 0) {
+            return;
+        }
+        // if more expectations occur put them here
+        if (waitcount < 0) {
+            return;
+        }
+        clearTimeout(id);
+        it.error = err === undefined ? null : err;
+        it.failed = it.error !== null;
+        checkCounters(batterie, it);
+        batterie.write('running', false, it);
+        next();
+    }
+}
 
 function It(batterie, nameStack, runner, options_) {
     var it = this;
@@ -129,5 +130,3 @@ function checkCounters(batterie, it) {
         }
     }
 }
-
-function noop() {}

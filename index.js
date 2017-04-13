@@ -5,6 +5,8 @@ var It = require('./It');
 var callItem = require('./utils/call-item');
 var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
+var toArray = require('./utils/to-array');
+var write = require('./utils/write');
 var isArray = Array.isArray;
 var counter = 0;
 Batterie.prototype = {
@@ -14,6 +16,12 @@ Batterie.prototype = {
     addValidator: function () {
         var E = this.Expectation;
         return E.addValidator.apply(E, arguments);
+    },
+    addItRedirect: function (key, runner) {
+        this.itRedirects.methods[key] = runner;
+    },
+    removeItRedirect: function (key) {
+        delete this.itRedirects.methods[key];
     },
     serial: function (name, runner, expects) {
         return this.it(name, runner, {
@@ -34,20 +42,22 @@ Batterie.prototype = {
             async: false
         });
     },
-    curry: function (a, method, b) {
-        var batterie = this;
-        return function (t) {
-            t.expect(a)[method](b);
-        };
-    },
-    it: function it(testName, runner, options) {
-        var key;
+    expect: globlExpect,
+    curry: globlExpect,
+    it: function it(testName, runner, options_) {
+        var shortcut, key;
+        var options = options_;
         var batterie = this;
         if (isArray(testName) || isArray(runner)) {
             return flutter(batterie, testName, runner, options);
         }
+        var itRedirects = batterie.itRedirects;
+        if (!itRedirects.shortcutting[testName] && (shortcut = itRedirects.methods[testName])) {
+            itRedirects.shortcutting[testName] = true;
+            return shortcut.apply(this, arguments);
+        }
         var tasks = batterie.tasks;
-        var nameStack = batterie.testNames.concat([testName]);
+        var nameStack = batterie.testNames.concat(testName ? [testName] : []);
         var it = new It(batterie, nameStack, runner, typeof options === 'number' ? {
             expects: options
         } : options);
@@ -156,7 +166,17 @@ Batterie.prototype = {
         basic: require('./loggers/basic')
     },
     logger: function (key) {
-        return this.loggers[key] || this.loggers.basic;
+        return (this.loggers[key] || this.loggers.basic)(this);
+    },
+    write: function (key, bool, it) {
+        var index, messages = this.messages;
+        if (bool) {
+            messages[key].push(it);
+        } else {
+            index = messages[key].indexOf(it);
+            messages[key].splice(index, 1);
+        }
+        write(messages.running.concat(messages.results));
     }
 };
 module.exports = construct();
@@ -181,6 +201,10 @@ function flutter(batterie, prefix, array, fn, count) {
 function Batterie() {
     var batterie = this;
     batterie.global = !(counter++);
+    batterie.messages = {
+        running: [],
+        results: []
+    };
     batterie.handlers = {
         passed: [],
         failed: [],
@@ -191,6 +215,7 @@ function Batterie() {
     batterie.testNames = [];
     batterie.its = {
         every: [],
+        running: [],
         passed: [],
         failed: [],
         missed: [],
@@ -215,6 +240,10 @@ function Batterie() {
         every: [],
         async: [],
         sync: []
+    };
+    batterie.itRedirects = {
+        methods: {},
+        shortcutting: {}
     };
     batterie.failed = pushes(batterie.handlers.failed);
     batterie.missed = pushes(batterie.handlers.missed);
@@ -264,6 +293,13 @@ function testThisRound(batterie, fn, count) {
                 }
             }
         }
+    };
+}
+
+function globlExpect(a, method, b) {
+    var batterie = this;
+    return function (t) {
+        t.expect(a)[method](b);
     };
 }
 

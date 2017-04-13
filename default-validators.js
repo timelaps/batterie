@@ -15,7 +15,8 @@ function defaultValidators(Expectation) {
         arrayPasser = passAForMessage('an Array');
     Expectation.addValidator('toEqual', isEqual, passForMessage);
     Expectation.addValidator('toThrow', throws, passAForMessage('to throw'));
-    Expectation.addValidator(TOBE, isStrictlyEqual, passForMessage);
+    Expectation.addValidator(TOBE, is, passForMessage);
+    Expectation.addValidator(TOBE + 'StrictlyEqual', isStrictlyEqual, passForMessage);
     Expectation.addValidator(TOBE + 'True', isTrue, trueBoolean);
     Expectation.addValidator(TOBE + 'False', isFalse, falseBoolean);
     Expectation.addValidator(TOBE + 'Undefined', isUndefined, undefinedPasser);
@@ -41,6 +42,10 @@ function defaultValidators(Expectation) {
             return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
         };
     });
+}
+
+function is(a, b) {
+    return a === a ? b === a : b !== b;
 }
 
 function isFalsey(a) {
