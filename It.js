@@ -10,6 +10,9 @@ It.prototype = {
     done: noop,
     failed: noop,
     run: run,
+    toString: function () {
+        return this.name.join(' ');
+    },
     expect: function (value) {
         // var err = parseStack(1); // for the stack
         var it = this;

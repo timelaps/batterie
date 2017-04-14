@@ -4,7 +4,7 @@ b.describe('Batterie', function () {
         t.expect(b).toBeObject();
     });
     b.it('can create another instance', function (t) {
-        t.expect(b.construct()).toBeInstance(b.constructor);
+        t.expect(b.construct()).toBeInstance(b.Batterie);
     });
     b.it('has an it function', function (t) {
         t.expect(b.it).toBeFunction();
@@ -24,8 +24,10 @@ b.describe('Batterie', function () {
     });
     bool = false;
     b.async('will run the test async', function (t) {
-        t.expect(bool).toBeTrue();
-        t.done();
+        setTimeout(function () {
+            t.expect(bool).toBeTrue();
+            t.done();
+        }, 1000);
     });
     b.sync('expect sync tasks registered after async tasks to run sync', function (t) {
         t.expect(bool).toBeFalse();

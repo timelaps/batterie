@@ -10,6 +10,7 @@ var write = require('./utils/write');
 var isArray = Array.isArray;
 var counter = 0;
 Batterie.prototype = {
+    Batterie: Batterie,
     construct: construct,
     forEach: forEach,
     FORCE_TIMEOUT: 5000,
@@ -42,8 +43,19 @@ Batterie.prototype = {
             async: false
         });
     },
-    expect: globlExpect,
-    curry: globlExpect,
+    expect: function (a, test, b) {
+        this.it(this.itRedirects.keys[test] || test, runner);
+
+        function runner(t) {
+            t.expect(a)[test](b);
+        }
+    },
+    curry: function expect(a, method, b) {
+        var batterie = this;
+        return function (t) {
+            t.expect(a)[method](b);
+        };
+    },
     it: function it(testName, runner, options_) {
         var shortcut, key;
         var options = options_;
@@ -171,7 +183,11 @@ Batterie.prototype = {
     write: function (key, bool, it) {
         var index, messages = this.messages;
         if (bool) {
-            messages[key].push(it);
+            if (isArray(bool)) {
+                messages[key] = messages[key].concat.apply(messages[key], bool);
+            } else {
+                messages[key].push(it);
+            }
         } else {
             index = messages[key].indexOf(it);
             messages[key].splice(index, 1);
@@ -243,7 +259,8 @@ function Batterie() {
     };
     batterie.itRedirects = {
         methods: {},
-        shortcutting: {}
+        shortcutting: {},
+        keys: {}
     };
     batterie.failed = pushes(batterie.handlers.failed);
     batterie.missed = pushes(batterie.handlers.missed);
@@ -293,13 +310,6 @@ function testThisRound(batterie, fn, count) {
                 }
             }
         }
-    };
-}
-
-function globlExpect(a, method, b) {
-    var batterie = this;
-    return function (t) {
-        t.expect(a)[method](b);
     };
 }
 
