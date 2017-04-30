@@ -170,9 +170,18 @@ Batterie.prototype = {
         };
     },
     describe: function describe(prefix, fn) {
-        this.testNames.push(prefix);
-        wraptry(fn, logError);
-        this.testNames.pop();
+        var batterie = this;
+        batterie.testNames.push(prefix);
+        wraptry(fn, handleError);
+        batterie.testNames.pop();
+
+        function handleError(e) {
+            batterie.descriptions.errors.push({
+                pretty: function () {
+                    return e;
+                }
+            });
+        }
     },
     loggers: {
         basic: require('./loggers/basic')
@@ -248,6 +257,9 @@ function Batterie() {
             parallel: [],
             serial: []
         }
+    };
+    batterie.descriptions = {
+        errors: []
     };
     batterie.expectations = {
         passed: [],
