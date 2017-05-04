@@ -3,7 +3,7 @@ var isArray = Array.isArray;
 var wraptry = require('./utils/wrap-try');
 var TOBE = 'toBe';
 
-function defaultValidators(Expectation) {
+function defaultValidators(Expectation, fn) {
     var trueBoolean = passAForMessage('Boolean: true'),
         falseBoolean = passAForMessage('Boolean: false'),
         undefinedPasser = passAForMessage('the value undefined'),

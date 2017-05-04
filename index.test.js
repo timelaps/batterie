@@ -91,6 +91,8 @@ b.describe('Batterie', function () {
         ['with any method available', b.curry(true, 'toBeTrue')],
         ['even the ones that were just added', b.curry(null, 'notToBeClass')]
     ]);
+    b.it('allows for inverted-non scoped chaining');
+    b.expect(1).toBe(1);
 });
 // create reporter plugins
 b.finish().then(b.logger());

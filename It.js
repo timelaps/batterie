@@ -1,5 +1,4 @@
 var forEach = require('./utils/for-each');
-var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
 var callItem = require('./utils/call-item');
 var toArray = require('./utils/to-array');
@@ -52,8 +51,8 @@ function run(next) {
         if (it.async) {
             waitcount++;
             triggerFinishLater();
-            after = it.runner(it);
-        } else {
+        }
+        if (it.runner) {
             after = it.runner(it);
         }
         if (after && after.then && after.catch) {
@@ -62,6 +61,10 @@ function run(next) {
             finished();
         }
     }, logError);
+
+    function logError(e) {
+        batterie.write('errors', true, e.stack);
+    }
 
     function triggerFinishLater() {
         id = setTimeout(function () {
@@ -98,8 +101,6 @@ function It(batterie, nameStack, runner, options_) {
     var it = this;
     var options = options_ || {};
     it.expectations = {
-        failed: false,
-        passed: true,
         every: [],
         failed: [],
         passed: []
@@ -109,7 +110,7 @@ function It(batterie, nameStack, runner, options_) {
     it.global = batterie;
     it.runner = runner;
     it.timeout = options.timeout || batterie.FORCE_TIMEOUT;
-    it.expects = options.expects || 1;
+    it.expects = runner ? (options.expects || 1) : 0;
     it.serial = options.serial || false;
     it.async = !!options.async;
     return it;

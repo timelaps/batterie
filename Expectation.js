@@ -33,9 +33,13 @@ function construct() {
             passedMessage = !passedNotMessage_ ? passedMessage_(defaultPassedMessage) : passedMessage_;
             passedNotMessage = !passedNotMessage_ ? passedMessage_(defaultPassedNotMessage) : passedNotMessage_;
         }
+        var notname = 'not' + capitalize(name);
         ExpectationFn[name] = wrapExpector(fn, passedMessage);
-        ExpectationFn['not' + capitalize(name)] = wrapExpector(negate(fn), passedMessage);
+        ExpectationFn[notname] = wrapExpector(negate(fn), passedMessage);
+        Expectation.validators.push(name);
+        Expectation.validators.push(notname);
     };
+    Expectation.validators = [];
     return Expectation;
 
     function Expectation(it, a) {

@@ -3,12 +3,31 @@ var defaultValidators = require('./default-validators');
 var ExpectationConstructorCreator = require('./Expectation');
 var It = require('./It');
 var callItem = require('./utils/call-item');
-var logError = require('./utils/log-error');
 var wraptry = require('./utils/wrap-try');
 var toArray = require('./utils/to-array');
 var write = require('./utils/write');
 var isArray = Array.isArray;
 var counter = 0;
+
+function Pseudo(a, batterie) {
+    var validator, i = 0,
+        Expectation = batterie.Expectation,
+        validators = Expectation.validators,
+        obj = {};
+    for (; i < validators.length; i++) {
+        validator = validators[i];
+        obj[validator] = stringit(validator);
+    }
+    return obj;
+
+    function stringit(key) {
+        return function (b) {
+            batterie.it(key, function (t) {
+                t.expect(a)[key](b);
+            });
+        };
+    }
+}
 Batterie.prototype = {
     Batterie: Batterie,
     construct: construct,
@@ -44,7 +63,10 @@ Batterie.prototype = {
         });
     },
     expect: function (a, test, b) {
-        this.it(this.itRedirects.keys[test] || test, runner);
+        if (test) {
+            this.it(this.itRedirects.keys[test] || test, runner);
+        }
+        return Pseudo(a, this);
 
         function runner(t) {
             t.expect(a)[test](b);
@@ -144,14 +166,14 @@ Batterie.prototype = {
                     batterie.flush();
                 });
             }
+        }
 
-            function check() {
-                if (async.counter) {
-                    return;
-                }
-                batterie.busy = false;
-                batterie.flush();
+        function check() {
+            if (async.counter) {
+                return;
             }
+            batterie.busy = false;
+            batterie.flush();
         }
     },
     finish: function finish() {
@@ -201,7 +223,7 @@ Batterie.prototype = {
             index = messages[key].indexOf(it);
             messages[key].splice(index, 1);
         }
-        write(messages.running.concat(messages.results));
+        write(messages.errors.concat(messages.running, messages.results));
     }
 };
 module.exports = construct();
@@ -228,6 +250,7 @@ function Batterie() {
     batterie.global = !(counter++);
     batterie.messages = {
         running: [],
+        errors: [],
         results: []
     };
     batterie.handlers = {
@@ -282,7 +305,7 @@ function Batterie() {
     defaultValidators(batterie.Expectation);
     batterie.busy = false;
     return batterie;
-};
+}
 
 function emptyFinishers(bat) {
     var finishers;

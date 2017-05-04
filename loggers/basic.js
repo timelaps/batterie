@@ -20,6 +20,6 @@ function basicLog(batterie) {
         });
         batterie.write('results', erred.concat(missed, failed, ['RESULTS', //
             'TOTAL:\t' + its.every.length, 'PASSED:\t' + its.passed.length, 'FAILED:\t' + its.failed.length, 'MISSED:\t' + its.missed.length, 'SYNC:\t' + its.sync.length, 'ASYNC:\t' + its.async.parallel.length, 'SERIAL:\t' + its.async.serial.length, 'EXPECTATIONS', 'TOTAL:\t' + expectations.every.length, 'PASSED:\t' + expectations.passed.length, 'FAILED:\t' + expectations.failed.length
-        ]))
+        ]));
     };
 }
