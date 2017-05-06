@@ -37,11 +37,21 @@ function defaultValidators(Expectation, fn) {
     Expectation.addValidator(TOBE + 'Thennable', isThennable, passAForMessage('a Thennable'));
     Expectation.addValidator(TOBE + 'Truthy', isTruthy, passAForMessage('Truthy'));
     Expectation.addValidator(TOBE + 'Falsey', isFalsey, passAForMessage('Falsey'));
+    Expectation.addValidator(TOBE + 'Finite', isFinite, passAForMessage('Finite'));
+    Expectation.addValidator(TOBE + 'Infinite', isInfinite, passAForMessage('Infinite'));
     Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
         return function (expectation) {
             return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
         };
     });
+}
+
+function isInfinite(a) {
+    return isStrictlyEqual(a, Infinity) || isStrictlyEqual(a, -Infinity);
+}
+
+function isFinite(a) {
+    return isNumber(a) && !isInfinite(a);
 }
 
 function is(a, b) {
