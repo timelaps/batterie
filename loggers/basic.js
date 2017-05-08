@@ -9,17 +9,37 @@ function basicLog(batterie) {
         var missed = [];
         var failed = [];
         var erred = [];
-        forEach(descriptions.errors, function (item) {
-            erred.push(item.pretty());
-        });
-        forEach(expectations.missed, function (item) {
-            missed.push(item.pretty());
-        });
-        forEach(expectations.failed, function (item) {
-            failed.push(item.pretty());
-        });
-        batterie.write('results', erred.concat(missed, failed, ['RESULTS', //
-            'TOTAL:\t' + its.every.length, 'PASSED:\t' + its.passed.length, 'FAILED:\t' + its.failed.length, 'MISSED:\t' + its.missed.length, 'SYNC:\t' + its.sync.length, 'ASYNC:\t' + its.async.parallel.length, 'SERIAL:\t' + its.async.serial.length, 'EXPECTATIONS', 'TOTAL:\t' + expectations.every.length, 'PASSED:\t' + expectations.passed.length, 'FAILED:\t' + expectations.failed.length
+        append(descriptions.errors, erred);
+        append(its.erred, erred);
+        append(expectations.missed, missed);
+        append(expectations.failed, failed);
+        batterie.write('results', [].concat(erred, missed, failed, [ //
+            'RESULTS', //
+            'TOTAL:\t' + its.every.length, //
+            'PASSED:\t' + its.passed.length, //
+            'FAILED:\t' + its.failed.length, //
+            'ERRED:\t' + its.erred.length, //
+            'MISSED:\t' + its.missed.length, //
+            'SYNC:\t' + its.sync.length, //
+            'ASYNC:\t' + its.async.parallel.length, //
+            'SERIAL:\t' + its.async.serial.length, //
+            '', //
+            'EXPECTATIONS', //
+            'TOTAL:\t' + expectations.every.length, //
+            'PASSED:\t' + expectations.passed.length, //
+            'FAILED:\t' + expectations.failed.length
         ]));
     };
+
+    function append(list, array) {
+        forEach(list, function (item) {
+            array.push(item.pretty());
+        });
+    }
+
+    function prepend(string, array) {
+        // return function (){
+        return array.length ? [string + ':'].concat(array) : [];
+        // };
+    }
 }

@@ -9,6 +9,9 @@ It.prototype = {
     done: noop,
     failed: noop,
     run: run,
+    pretty: function () {
+        return this.toString();
+    },
     toString: function () {
         return this.name.join(' ');
     },
@@ -56,7 +59,8 @@ function run(next) {
             after = it.runner(it);
         }
         if (after && after.then && after.catch) {
-            after.then(finished).catch(errorFailover);
+            waitcount--;
+            after.then(it.done).catch(it.error);
         } else {
             finished();
         }
@@ -69,13 +73,14 @@ function run(next) {
     function triggerFinishLater() {
         id = setTimeout(function () {
             errorFailover({
-                message: 'timout was met for ' + it.name.join(' ')
+                message: 'timout was met for ' + it.toString()
             });
         }, it.timeout);
     }
 
     function errorFailover(e) {
         waitcount = 1;
+        batterie.its.erred.push(it);
         logError(e);
         finished(e);
     }

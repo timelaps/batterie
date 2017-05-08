@@ -267,6 +267,7 @@ function Batterie() {
         passed: [],
         failed: [],
         missed: [],
+        erred: [],
         sync: [],
         async: {
             parallel: [],

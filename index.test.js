@@ -93,6 +93,19 @@ b.describe('Batterie', function () {
     ]);
     b.it('allows for inverted-non scoped chaining');
     b.expect(1).toBe(1);
+    b.async('can return promise', function (t) {
+        return timeout(100).then(function () {
+            t.expect(1).toBe(1);
+        });
+    });
+
+    function timeout(time) {
+        return new Promise(function (s, f) {
+            return setTimeout(function () {
+                s();
+            }, time);
+        });
+    }
 });
 // create reporter plugins
 b.finish().then(b.logger());
