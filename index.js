@@ -7,6 +7,7 @@ var wraptry = require('./utils/wrap-try');
 var toArray = require('./utils/to-array');
 var write = require('./utils/write');
 var isArray = Array.isArray;
+var isString = require('./utils/is/string');
 var counter = 0;
 
 function Pseudo(a, batterie) {
@@ -208,8 +209,19 @@ Batterie.prototype = {
     loggers: {
         basic: require('./loggers/basic')
     },
+    log: function (str) {
+        return this.write('results', true, str);
+    },
+    unlog: function (str) {
+        return this.write('results', false, str);
+    },
     logger: function (key) {
-        return (this.loggers[key] || this.loggers.basic)(this);
+        var b = this;
+        var logger = (b.loggers[key] || b.loggers.basic)(b);
+        return function () {
+            var results = logger.apply(this, arguments);
+            b.write('results', results);
+        };
     },
     write: function (key, bool, it) {
         var index, messages = this.messages;
@@ -217,13 +229,22 @@ Batterie.prototype = {
             if (isArray(bool)) {
                 messages[key] = messages[key].concat.apply(messages[key], bool);
             } else {
-                messages[key].push(it);
+                if (isString(bool)) {
+                    messages[key].push(bool);
+                } else {
+                    messages[key].push(it);
+                }
             }
         } else {
-            index = messages[key].indexOf(it);
-            messages[key].splice(index, 1);
+            if (bool === false) {
+                index = messages[key].indexOf(it);
+                messages[key].splice(index, 1);
+            }
         }
-        write(messages.errors.concat(messages.running, messages.results));
+        write([].concat( //
+            messages.errors, //
+            messages.running, //
+            messages.results).join('\n'));
     }
 };
 module.exports = construct();

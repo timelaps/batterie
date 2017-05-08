@@ -3,32 +3,34 @@ module.exports = basicLog;
 
 function basicLog(batterie) {
     return function () {
+        var erred = [];
+        var missed = [];
+        var failed = [];
         var expectations = batterie.expectations;
         var descriptions = batterie.descriptions;
         var its = batterie.its;
-        var missed = [];
-        var failed = [];
-        var erred = [];
         append(descriptions.errors, erred);
         append(its.erred, erred);
         append(expectations.missed, missed);
         append(expectations.failed, failed);
-        batterie.write('results', [].concat(erred, missed, failed, [ //
-            'RESULTS', //
-            'TOTAL:\t' + its.every.length, //
-            'PASSED:\t' + its.passed.length, //
-            'FAILED:\t' + its.failed.length, //
-            'ERRED:\t' + its.erred.length, //
-            'MISSED:\t' + its.missed.length, //
-            'SYNC:\t' + its.sync.length, //
-            'ASYNC:\t' + its.async.parallel.length, //
-            'SERIAL:\t' + its.async.serial.length, //
-            '', //
-            'EXPECTATIONS', //
-            'TOTAL:\t' + expectations.every.length, //
-            'PASSED:\t' + expectations.passed.length, //
-            'FAILED:\t' + expectations.failed.length
-        ]));
+        return [].concat(erred, //
+            missed, //
+            failed, [ //
+                'RESULTS', //
+                'TOTAL:\t' + its.every.length, //
+                'PASSED:\t' + its.passed.length, //
+                'FAILED:\t' + its.failed.length, //
+                'ERRED:\t' + its.erred.length, //
+                'MISSED:\t' + its.missed.length, //
+                'SYNC:\t' + its.sync.length, //
+                'ASYNC:\t' + its.async.parallel.length, //
+                'SERIAL:\t' + its.async.serial.length, //
+                '', //
+                'EXPECTATIONS', //
+                'TOTAL:\t' + expectations.every.length, //
+                'PASSED:\t' + expectations.passed.length, //
+                'FAILED:\t' + expectations.failed.length
+            ]);
     };
 
     function append(list, array) {
@@ -38,8 +40,6 @@ function basicLog(batterie) {
     }
 
     function prepend(string, array) {
-        // return function (){
-        return array.length ? [string + ':'].concat(array) : [];
-        // };
+        return array.length ? [string + ': '].concat(array) : [];
     }
 }
