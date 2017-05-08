@@ -56,7 +56,7 @@ function run(next) {
             after = it.runner(it);
         }
         if (after && after.then && after.catch) {
-            after.then(finished).catch(finished);
+            after.then(finished).catch(errorFailover);
         } else {
             finished();
         }
@@ -76,8 +76,8 @@ function run(next) {
 
     function errorFailover(e) {
         waitcount = 1;
-        finished(e);
         logError(e);
+        finished(e);
     }
 
     function finished(err) {
