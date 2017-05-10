@@ -16,13 +16,13 @@ function basicLog(batterie) {
         append(expectations.failed, failed);
         return [].concat(erred, //
             missed, //
-            failed, [ //
-                'RESULTS', //
+            failed, ['RESULTS', //
                 'TOTAL:\t' + its.every.length, //
                 'PASSED:\t' + its.passed.length, //
-                'FAILED:\t' + its.failed.length, //
+                'SKIP:\t' + its.skipped.length, //
                 'ERRED:\t' + its.erred.length, //
                 'MISSED:\t' + its.missed.length, //
+                'FAILED:\t' + its.failed.length, //
                 '', //
                 'ORDER', //
                 'SYNC:\t' + its.sync.length, //
@@ -31,7 +31,7 @@ function basicLog(batterie) {
                 '', //
                 'EXPECTATIONS', //
                 'TOTAL:\t' + expectations.every.length, //
-                'PASSED:\t' + (expectations.passed.length - skipped), //
+                'PASSED:\t' + expectations.passed.length, //
                 'FAILED:\t' + expectations.failed.length, //
                 'SKIP:\t' + skipped
             ]);

@@ -107,6 +107,24 @@ b.describe('Batterie', function () {
             two: [3, 4]
         });
     });
+    b.describe('sync pre and append functions', function () {
+        var val = 0;
+        b.beforeSync(function (t) {
+            val++;
+        });
+        b.it('can have runners before', function (t) {
+            t.expect(val).toBe(1);
+        });
+        b.afterSync(function (t) {
+            val++;
+        });
+        b.it('should not have hit the after function', function (t) {
+            t.expect(val).toBe(2);
+        });
+        b.it('should have hit the after function now', function (t) {
+            t.expect(val).toBe(4);
+        });
+    });
 
     function timeout(time) {
         return new Promise(function (s, f) {

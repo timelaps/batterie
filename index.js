@@ -157,11 +157,12 @@ Batterie.prototype = {
                 check();
                 return;
             } else if (!async.counter) {
-                task = async.serial.shift() || tasks.after.shift();
+                task = async.serial.shift() || tasks.finish.shift();
                 if (!task) {
                     batterie.busy = false;
                     return;
                 }
+                batterie.log(JSON.stringify(task));
                 task(function () {
                     batterie.busy = false;
                     batterie.flush();
@@ -184,7 +185,7 @@ Batterie.prototype = {
         return {
             then: function (forlater) {
                 batterie.handlers.finish.push(forlater);
-                batterie.tasks.after.push(function () {
+                batterie.tasks.finish.push(function () {
                     emptyFinishers(batterie);
                 });
                 batterie.flush();
@@ -194,8 +195,15 @@ Batterie.prototype = {
     },
     describe: function describe(prefix, fn) {
         var batterie = this;
+        var tasks = batterie.tasks;
+        var before = tasks.before;
+        var after = tasks.after;
+        before.push([]);
+        after.push([]);
         batterie.testNames.push(prefix);
         wraptry(fn, handleError);
+        before.pop();
+        after.pop();
         batterie.testNames.pop();
 
         function handleError(e) {
@@ -279,7 +287,8 @@ function Batterie() {
         failed: [],
         missed: [],
         every: [],
-        finish: []
+        finish: [],
+        skipped: []
     };
     batterie.testNames = [];
     batterie.its = {
@@ -290,6 +299,7 @@ function Batterie() {
         missed: [],
         erred: [],
         sync: [],
+        skipped: [],
         async: {
             parallel: [],
             serial: []
@@ -297,7 +307,13 @@ function Batterie() {
     };
     batterie.tasks = {
         sync: [],
-        after: [],
+        before: [
+            []
+        ],
+        after: [
+            []
+        ],
+        finish: [],
         async: {
             parallel: [],
             serial: []
@@ -320,6 +336,10 @@ function Batterie() {
         shortcutting: {},
         keys: {}
     };
+    batterie.before = addTask('before');
+    batterie.after = addTask('after');
+    batterie.beforeSync = addTask('before', syncModifier);
+    batterie.afterSync = addTask('after', syncModifier);
     batterie.failed = pushes(batterie.handlers.failed);
     batterie.missed = pushes(batterie.handlers.missed);
     batterie.every = pushes(batterie.handlers.every);
@@ -328,6 +348,28 @@ function Batterie() {
     defaultValidators(batterie.Expectation);
     batterie.busy = false;
     return batterie;
+}
+
+function syncModifier(fn) {
+    return function (t) {
+        try {
+            fn.apply(this, arguments);
+            t.done();
+        } catch (e) {
+            t.error(e);
+        }
+    };
+}
+
+function addTask(key, mod_) {
+    var mod = mod_ || function (fn) {
+        return fn;
+    };
+    return function (task) {
+        var tasks = this.tasks[key];
+        var last = tasks[tasks.length - 1];
+        last.push(mod(task));
+    };
 }
 
 function emptyFinishers(bat) {
