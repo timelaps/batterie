@@ -10,5 +10,8 @@
   },
   "keywords": [],
   "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "matters": "^1.0.3"
+  }
 }

@@ -7,7 +7,7 @@ function construct() {
         finished: finished,
         pretty: function () {
             var expectation = this;
-            return expectation.name + '\n\t#' + (expectation.groupindex + 1) + ' ' + expectation.message;
+            return expectation.name + '\n\t#' + (expectation.groupindex + 1) + '\n' + expectation.message;
         },
         valueOf: function () {
             return this.passed;
@@ -20,7 +20,16 @@ function construct() {
         }),
         eitherway: afterwards(function () {
             return true;
-        })
+        }),
+        skip: function () {
+            var expectation = this;
+            var it = expectation.it;
+            expectation.skipping = true;
+            // it.expects = Math.max(0, it.expects - 1);
+            // it.expectations.every.splice(it.expectations.every.indexOf(expectation), 1);
+            // it.expectations.every.splice(batterie.expectations.every.indexOf(expectation), 1);
+            return expectation;
+        }
     };
     Expectation.defaultPassedMessage = defaultPassedMessage;
     Expectation.defaultPassedNotMessage = defaultPassedNotMessage;
@@ -88,12 +97,17 @@ function finished(passed_, passedMessage) {
         calls = callItem(expectation),
         expectations = it.expectations,
         message = passedMessage(expectation);
-    if (passed) {
+    if (passed || expectation.skipping) {
         key = 'passed';
-        message = 'found ' + message;
+        passed = true;
+        if (expectation.skipping) {
+            globl.expectations.skipped.push(expectation);
+            it.expectations.skipped.push(expectation);
+        }
+        // message = message;
     } else {
         key = 'failed';
-        message = 'expected ' + message;
+        // message = message;
     }
     handlers = globl.handlers[key];
     expectations[key].push(expectation);

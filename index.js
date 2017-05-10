@@ -312,7 +312,8 @@ function Batterie() {
         missed: [],
         every: [],
         async: [],
-        sync: []
+        sync: [],
+        skipped: []
     };
     batterie.itRedirects = {
         methods: {},

@@ -98,6 +98,15 @@ b.describe('Batterie', function () {
             t.expect(1).toBe(1);
         });
     });
+    b.it('understands deep objects', function (t) {
+        t.expect({
+            one: [1],
+            two: [2, 1]
+        }).skip().toEqual({
+            one: 2,
+            two: [3, 4]
+        });
+    });
 
     function timeout(time) {
         return new Promise(function (s, f) {

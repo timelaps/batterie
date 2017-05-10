@@ -2,6 +2,76 @@ module.exports = defaultValidators;
 var isArray = Array.isArray;
 var wraptry = require('./utils/wrap-try');
 var TOBE = 'toBe';
+var forEach = require('./utils/for-each');
+var passtypes = {
+    string: true,
+    number: true
+};
+var passvalues = {
+    true: true,
+    false: false,
+    NaN: true,
+    undefined: true,
+    null: true
+};
+
+function stringify(a, b, delimiter_) {
+    var list, type = typeof a,
+        delimiter = delimiter_ || '';
+    if (passvalues[a] || passtypes[type]) {
+        if (type === 'string') {
+            return matters(a, b);
+        }
+        return a + '';
+    } else if (type === 'function') {
+        return a.toString();
+    } else if (type === 'object') {
+        if (isArray(a)) {
+            return '[ ' + a.length + ' items ]';
+        } else {
+            var rows = map(buildObjectArea(a), function (string) {
+                return delimiter + '    ' + string;
+            });
+            return [delimiter + '{'].concat(rows, [delimiter + '}']).join('\n');
+        }
+    }
+}
+
+function map(list, fn) {
+    var list2 = [];
+    forEach(list, function (item, index) {
+        list2.push(fn(item, index, list));
+    });
+    return list2;
+}
+
+function buildObjectArea(a) {
+    var list = [];
+    forEach(isArray(a) ? a : keys(a), function (key) {
+        var value = a[key];
+        list.push(key + ': ' + stringifyRow(value));
+    });
+    return list;
+}
+
+function stringifyRow(value) {
+    var type = typeof value;
+    if (passvalues[value] || type === 'number') {
+        type = value;
+    } else if (typeof value === 'string') {
+        type = value.slice(0, 100);
+        if (type.length >= 100) {
+            type = type.slice(0, 97) + '...';
+        }
+    } else if (type === 'function') {
+        type = '[Function ' + (value.name || 'anonymous') + ']';
+    } else if (isArray(value)) {
+        type = '[ ' + value.length + ' items ]';
+    } else if (type === 'object') {
+        type = '{ Object }';
+    }
+    return type;
+}
 
 function defaultValidators(Expectation, fn) {
     var trueBoolean = passAForMessage('Boolean: true'),
@@ -13,7 +83,11 @@ function defaultValidators(Expectation, fn) {
         functionPasser = passAForMessage('of type function'),
         objectPasser = passAForMessage('of type object'),
         arrayPasser = passAForMessage('an Array');
-    Expectation.addValidator('toEqual', isEqual, passForMessage);
+    Expectation.addValidator('toEqual', isEqual, function (expectation) {
+        return stringify(expectation.a) + '\n' + stringify(expectation.b);
+    }, function (failure) {
+        return stringify(expectation.a) + ' not to equal ' + stringify(expectation.b);
+    });
     Expectation.addValidator('toThrow', throws, passAForMessage('to throw'));
     Expectation.addValidator(TOBE, is, passForMessage);
     Expectation.addValidator(TOBE + 'StrictlyEqual', isStrictlyEqual, passForMessage);
@@ -248,14 +322,14 @@ function eq(a, b, aStack, bStack) {
         }
         // An `egal` comparison is performed for other numeric values.
         return aNumber === 0 ? 1 / aNumber === 1 / b : aNumber === bNumber;
-    case BRACKET_OBJECT_SPACE + 'Date]':
-    case BRACKET_OBJECT_SPACE + 'Boolean]':
+    case createToStringResult('Date'):
+    case createToStringResult('Boolean'):
         // Coerce dates and booleans to numeric primitive values. Dates are compared by their
         // millisecond representations. Note that invalid dates with millisecond representations
         // of `NaN` are not equivalent.
         return toNumber(a) === toNumber(b);
     }
-    areArrays = className === BRACKET_OBJECT_SPACE + 'Array]';
+    areArrays = className === createToStringResult('Array');
     if (!areArrays) {
         if (!isObject(a) || !isObject(b)) {
             return false;

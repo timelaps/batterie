@@ -2,6 +2,7 @@ var forEach = require('./utils/for-each');
 var wraptry = require('./utils/wrap-try');
 var callItem = require('./utils/call-item');
 var toArray = require('./utils/to-array');
+var now = require('./utils/now');
 module.exports = It;
 It.prototype = {
     error: noop,
@@ -13,7 +14,7 @@ It.prototype = {
         return this.toString();
     },
     toString: function () {
-        return this.name.join(' ');
+        return this.name.join(' > ');
     },
     expect: function (value) {
         // var err = parseStack(1); // for the stack
@@ -56,6 +57,7 @@ function run(next) {
             triggerFinishLater();
         }
         if (it.runner) {
+            it.start = now();
             after = it.runner(it);
         }
         if (after && after.then && after.catch) {
@@ -93,6 +95,7 @@ function run(next) {
         if (waitcount < 0) {
             return;
         }
+        it.end = now();
         clearTimeout(id);
         it.error = err === undefined ? null : err;
         it.failed = it.error !== null;
@@ -108,7 +111,8 @@ function It(batterie, nameStack, runner, options_) {
     it.expectations = {
         every: [],
         failed: [],
-        passed: []
+        passed: [],
+        skipped: []
     };
     it.name = nameStack;
     it.missed = false;

@@ -9,6 +9,7 @@ function basicLog(batterie) {
         var expectations = batterie.expectations;
         var descriptions = batterie.descriptions;
         var its = batterie.its;
+        var skipped = expectations.skipped.length;
         append(descriptions.errors, erred);
         append(its.erred, erred);
         append(expectations.missed, missed);
@@ -22,20 +23,25 @@ function basicLog(batterie) {
                 'FAILED:\t' + its.failed.length, //
                 'ERRED:\t' + its.erred.length, //
                 'MISSED:\t' + its.missed.length, //
+                '', //
+                'ORDER', //
                 'SYNC:\t' + its.sync.length, //
                 'ASYNC:\t' + its.async.parallel.length, //
                 'SERIAL:\t' + its.async.serial.length, //
                 '', //
                 'EXPECTATIONS', //
                 'TOTAL:\t' + expectations.every.length, //
-                'PASSED:\t' + expectations.passed.length, //
-                'FAILED:\t' + expectations.failed.length
+                'PASSED:\t' + (expectations.passed.length - skipped), //
+                'FAILED:\t' + expectations.failed.length, //
+                'SKIP:\t' + skipped
             ]);
     };
 
     function append(list, array) {
         forEach(list, function (item) {
-            array.push(item.pretty());
+            if (!item.skipping) {
+                array.push(item.pretty());
+            }
         });
     }
 
