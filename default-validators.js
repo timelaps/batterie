@@ -2,6 +2,7 @@ module.exports = defaultValidators;
 var isArray = Array.isArray;
 var wraptry = require('./utils/wrap-try');
 var TOBE = 'toBe';
+var matters = require('matters');
 var forEach = require('./utils/for-each');
 var passtypes = {
     string: true,
