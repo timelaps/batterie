@@ -19,21 +19,27 @@ It.prototype = {
             this.global.its.skipped.push(this);
         }
     },
+    skip: function () {
+        // return this
+    },
     pretty: function () {
         return this.toString();
     },
     toString: function () {
         return this.name.join(' > ');
     },
-    expect: function (value) {
-        // var err = parseStack(1); // for the stack
+    expectation: function () {
         var it = this;
         var batterie = it.global;
         var expectations = it.expectations;
-        var expt = new batterie.Expectation(it, value);
+        var expt = new batterie.Expectation(it);
         expectations.every.push(expt);
         batterie.expectations.every.push(expt);
         return expt;
+    },
+    expect: function (value) {
+        // var err = parseStack(1); // for the stack
+        return this.expectation().a(value);
     },
     catch: function (fn) {
         var t = this;

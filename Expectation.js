@@ -1,6 +1,7 @@
 var forEach = require('./utils/for-each');
 var callItem = require('./utils/call-item');
 var isString = require('./utils/is/string');
+var has = require('./utils/has');
 module.exports = construct;
 
 function construct() {
@@ -8,7 +9,7 @@ function construct() {
         finished: finished,
         pretty: function () {
             var expectation = this;
-            return expectation.name + '\n\t#' + (expectation.groupindex + 1) + '\n' + expectation.message;
+            return expectation.name + ' #' + (expectation.groupindex + 1) + '\n' + expectation.message;
         },
         valueOf: function () {
             return this.passed;
@@ -28,6 +29,20 @@ function construct() {
             expectation.skipping = true;
             it.skipped();
             return expectation;
+        },
+        a: function (value) {
+            if (has(this, '_a')) {
+                return this._a;
+            }
+            this._a = value;
+            return this;
+        },
+        b: function (value) {
+            if (has(this, '_b')) {
+                return this._b;
+            }
+            this._b = value;
+            return this;
         }
     };
     Expectation.defaultPassedMessage = defaultPassedMessage;
@@ -50,16 +65,14 @@ function construct() {
     Expectation.validators = [];
     return Expectation;
 
-    function Expectation(it, a) {
+    function Expectation(it) {
         var expectation = this;
         // it stuff should be moved to other side
         // or at least into a bind type function
         expectation.it = it;
         expectation.groupindex = it.expectations.every.length;
         expectation.name = it.name.join(' ');
-        expectation.a = a;
-        expectation.passed = false;
-        expectation.ran = false;
+        expectation.passed = expectation.skipped = expectation.ran = false;
         return expectation;
     }
 }
@@ -76,7 +89,7 @@ function negate(fn) {
 
 function defaultWrapper(fn) {
     return function (expectation) {
-        return fn(expectation.a, expectation.b);
+        return fn(expectation.a(), expectation.b());
     };
 }
 
@@ -137,7 +150,7 @@ function wrapExpector(fn, passedMessage) {
             throw new Error('expectations can only be run once');
         }
         expectation.ran = true;
-        expectation.b = b;
-        return expectation.finished(fn(expectation.a, b), passedMessage);
+        expectation.b(b);
+        return expectation.finished(fn(expectation.a(), b), passedMessage);
     };
 }

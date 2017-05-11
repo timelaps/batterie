@@ -84,9 +84,9 @@ function defaultValidators(Expectation, fn) {
         objectPasser = passAForMessage('of type object'),
         arrayPasser = passAForMessage('an Array');
     Expectation.addValidator('toEqual', isEqual, function (expectation) {
-        return stringify(expectation.a) + '\n' + stringify(expectation.b);
+        return stringify(expectation.a()) + '\n' + stringify(expectation.b());
     }, function (failure) {
-        return stringify(expectation.a) + ' not to equal ' + stringify(expectation.b);
+        return stringify(expectation.a()) + ' not to equal ' + stringify(expectation.b());
     });
     Expectation.addValidator('toThrow', throws, passAForMessage('to throw'));
     Expectation.addValidator(TOBE, is, passForMessage);
@@ -115,7 +115,7 @@ function defaultValidators(Expectation, fn) {
     Expectation.addValidator(TOBE + 'Infinite', isInfinite, passAForMessage('Infinite'));
     Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
         return function (expectation) {
-            return fn(expectation.a, 'of instance ' + (expectation.b || {}).name);
+            return fn(expectation.a(), 'of instance ' + (expectation.b() || {}).name);
         };
     });
 }
@@ -172,21 +172,21 @@ function isInstanceOf(a, b) {
 function combineABPrefix(prefix) {
     return function (fn) {
         return function (expectation) {
-            return fn(expectation.a, prefix + ' ' + expectation.b);
+            return fn(expectation.a(), prefix + ' ' + expectation.b());
         };
     };
 }
 
 function passForMessage(fn) {
     return function (expectation) {
-        return fn(expectation.a, expectation.b);
+        return fn(expectation.a(), expectation.b());
     };
 }
 
 function passAForMessage(def) {
     return function (fn) {
         return function (expectation) {
-            return fn(expectation.a, def);
+            return fn(expectation.a(), def);
         };
     };
 }
