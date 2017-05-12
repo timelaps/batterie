@@ -116,9 +116,20 @@ function defaultValidators(Expectation, fn) {
     Expectation.addValidator(TOBE + 'Infinite', isInfinite, passAForMessage('Infinite'));
     Expectation.addValidator(TOBE + 'Instance', isInstanceOf, function (fn) {
         return function (expectation) {
-            return fn(expectation.a(), 'of instance ' + (expectation.b() || {}).name);
+            return fn(expectation.a(), 'of instance ' + extractName(expectation.b()));
         };
     });
+    Expectation.addValidator('toReturn', function (a, b) {
+        return toEqual(a(), b);
+    }, function (expectation) {
+        return 'expected ' + extractName(expectation.a()) + ' to return ' + stringify(expectation.b());
+    }, function (expectation) {
+        return 'expected ' + extractName(expectation.a()) + ' not to return ' + stringify(expectation.b());
+    });
+}
+
+function extractName(value) {
+    return (value || {}).name || 'anonymous';
 }
 
 function isInfinite(a) {
