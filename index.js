@@ -34,6 +34,7 @@ Batterie.prototype = {
     construct: construct,
     forEach: forEach,
     FORCE_TIMEOUT: 5000,
+    REWRITABLE_LOG: true,
     addValidator: function () {
         var E = this.Expectation;
         return E.addValidator.apply(E, arguments);
@@ -252,7 +253,7 @@ Batterie.prototype = {
         write([].concat( //
             messages.errors, //
             messages.running, //
-            messages.results).join('\n'));
+            messages.results).join('\n'), this.REWRITABLE_LOG);
     }
 };
 module.exports = construct();
