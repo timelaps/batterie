@@ -1,22 +1,22 @@
 {
-    "name": "batterie",
-    "version": "1.0.33",
-    "description": "",
-    "main": "index.js",
-    "bin": {
-        "batterie": "bin/index.js"
-    },
-    "repository": "https://github.com/mmclau14/batterie",
-    "scripts": {
-        "test": "nodemon index.test.js",
-        "share": "npm version patch && git push && npm publish",
-        "lash": "node ./bin/index.js"
-    },
-    "keywords": [],
-    "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
-    "license": "MIT",
-    "dependencies": {
-        "matters": "^1.0.3",
-        "mkdirp": "^0.5.1"
-    }
+  "name": "batterie",
+  "version": "1.0.34",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "batterie": "bin/index.js"
+  },
+  "repository": "https://github.com/mmclau14/batterie",
+  "scripts": {
+    "test": "nodemon index.test.js",
+    "share": "npm version patch && git push && npm publish",
+    "lash": "node ./bin/index.js"
+  },
+  "keywords": [],
+  "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
+  "license": "MIT",
+  "dependencies": {
+    "matters": "^1.0.3",
+    "mkdirp": "^0.5.1"
+  }
 }
