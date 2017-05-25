@@ -1,6 +1,6 @@
 {
   "name": "batterie",
-  "version": "1.0.40",
+  "version": "1.0.41",
   "description": "",
   "main": "lib/index.js",
   "bin": {
