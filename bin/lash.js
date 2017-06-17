@@ -9,7 +9,7 @@ function lash(inroot, position) {
     var dirposition = path.dirname(position);
     var relativeBase = path.relative(dirposition, inroot) + '/';
     return fsp.folder(inroot, inroot, pushIndexes).then(function () {
-        var requires = list.map(function (p) {
+        var requires = list.sort().map(function (p) {
             return 'require(\'' + p + '\');';
         });
         var file = requires.join('\n');
