@@ -17,7 +17,7 @@ function findEmpty(inroot) {
             return !file.content;
         }).map(function (file) {
             return file.path;
-        });
+        }).sort();
     }).then(function (files) {
         console.log(files.join('\n'));
     }).catch(function (err) {
