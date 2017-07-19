@@ -21,7 +21,7 @@ function lash(inroot, position) {
         var rel;
         if (file.base === 'index.test.js') {
             rel = file.half.slice(0, file.half.length - 3);
-            list.push('./' + relativeBase + rel);
+            list.push('./' + (relativeBase === '/' ? '' : relativeBase) + rel);
         }
     }
 }
