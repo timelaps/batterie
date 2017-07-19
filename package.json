@@ -18,6 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "matters": "^1.0.3",
+    "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1"
   }
 }
