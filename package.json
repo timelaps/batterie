@@ -14,7 +14,7 @@
     "lash": "node ./bin/index.js"
   },
   "keywords": [],
-  "author": "Michael McLaughlin <michael@gospecless.com> (https://gospecless.com)",
+  "author": "Michael McLaughlin <michael.j.mclaughlin20@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "matters": "^1.0.3",
