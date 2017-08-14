@@ -6,6 +6,9 @@
   "bin": {
     "batterie": "bin/index.js"
   },
+  "test": {
+    "root": "./lib/index.test.js"
+  },
   "repository": "https://github.com/mmclau14/batterie",
   "scripts": {
     "dev": "nodemon lib/index.test.js",
@@ -20,5 +23,8 @@
     "matters": "^1.0.3",
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1"
+  },
+  "devDependencies": {
+    "coveralls": "^2.13.1"
   }
 }
