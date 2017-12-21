@@ -26,6 +26,6 @@
     "mkdirp": "^0.5.1"
   },
   "devDependencies": {
-    "coveralls": "^2.13.1"
+    "coveralls": "^2.13.3"
   }
 }
