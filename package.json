@@ -15,8 +15,8 @@
     "test": "node test.js",
     "share": "npm run build && npm version patch && git push && npm publish",
     "lash": "node ./bin/index.js",
-    "build": "npm run ensure-dist && npm run build-js",
-    "build-js": "./node_modules/.bin/browserify --igv=false ./lib/index.js > ./dist/index.js && ",
+    "build": "npm run ensure-dist && npm run build-js && npm run build-js-map",
+    "build-js": "./node_modules/.bin/browserify --igv=false ./lib/index.js > ./dist/index.js",
     "build-js-map": "./node_modules/.bin/uglifyjs ./dist/index.js -o ./dist/index.min.js --source-map='content=inline,filename=index.min.js,url=index.min.js.map'",
     "ensure-dist": "mkdirp ./dist",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
