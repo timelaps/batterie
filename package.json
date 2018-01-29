@@ -13,19 +13,28 @@
   "scripts": {
     "dev": "nodemon test.js",
     "test": "node test.js",
-    "share": "npm version patch && git push && npm publish",
+    "share": "npm run build && npm version patch && git push && npm publish",
     "lash": "node ./bin/index.js",
+    "build": "npm run ensure-dist && npm run build-js",
+    "build-js": "./node_modules/.bin/browserify --igv=false ./lib/index.js > ./dist/index.js && ",
+    "build-js-map": "./node_modules/.bin/uglifyjs ./dist/index.js -o ./dist/index.min.js --source-map='content=inline,filename=index.min.js,url=index.min.js.map'",
+    "ensure-dist": "mkdirp ./dist",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "keywords": [],
   "author": "Michael McLaughlin <michael.j.mclaughlin20@gmail.com>",
   "license": "MIT",
+  "files": [
+    "umd"
+  ],
   "dependencies": {
     "@timelaps/matters": "^1.0.5",
     "minimatch": "^3.0.4",
     "mkdirp": "^0.5.1"
   },
   "devDependencies": {
-    "coveralls": "^2.13.3"
+    "browserify": "^15.2.0",
+    "coveralls": "^2.13.3",
+    "uglify-js": "^3.3.9"
   }
 }
