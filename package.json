@@ -24,9 +24,6 @@
   "keywords": [],
   "author": "Michael McLaughlin <michael.j.mclaughlin20@gmail.com>",
   "license": "MIT",
-  "files": [
-    "umd"
-  ],
   "dependencies": {
     "@timelaps/matters": "^1.0.5",
     "minimatch": "^3.0.4",
