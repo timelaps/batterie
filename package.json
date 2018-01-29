@@ -15,9 +15,11 @@
     "test": "node test.js",
     "share": "npm run build && npm version patch && git push && npm publish",
     "lash": "node ./bin/index.js",
-    "build": "npm run ensure-dist && npm run build-js && npm run build-js-map",
+    "build": "npm run ensure-dist && npm run build-js && npm run build-js-global && npm run build-js-map && npm run build-js-map-global",
     "build-js": "./node_modules/.bin/browserify ./lib/index.js > ./dist/index.js",
+    "build-js-global": "./node_modules/.bin/browserify ./lib/global.js > ./dist/global.js",
     "build-js-map": "./node_modules/.bin/uglifyjs ./dist/index.js -o ./dist/index.min.js --source-map='content=inline,filename=index.min.js,url=index.min.js.map'",
+    "build-js-map-global": "./node_modules/.bin/uglifyjs ./dist/global.js -o ./dist/global.min.js --source-map='content=inline,filename=global.min.js,url=global.min.js.map'",
     "ensure-dist": "mkdirp ./dist",
     "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
